@@ -6,6 +6,8 @@ import (
     "strings"
     "sort"
 
+    "encoding/json"
+
     "github.com/jessevdk/go-flags"
     "github.com/dsoprea/go-logging"
     "github.com/dsoprea/go-exif"
@@ -33,6 +35,71 @@ type parameters struct {
 var (
     arguments = new(parameters)
 )
+
+func flattenIfd(ifd *exif.Ifd, included sort.StringSlice, distilled []map[string]interface{}) (distilledOut []map[string]interface{}, err error) {
+    defer func() {
+        if state := recover(); state != nil {
+            err = log.Wrap(state.(error))
+        }
+    }()
+
+    ti := exif.NewTagIndex()
+
+    for _, tag := range ifd.Entries {
+        if tag.ChildIfdName != "" {
+            childIfd, err := ifd.ChildWithName(tag.ChildIfdName)
+            log.PanicIf(err)
+
+            distilled, err = flattenIfd(childIfd, included, distilled)
+            log.PanicIf(err)
+
+            continue
+        }
+
+        it, err := ti.Get(ifd.Identity(), tag.TagId)
+
+        tagName := ""
+        if err == nil {
+            tagName = it.Name
+        }
+
+        // Unknown tag.
+        if tagName == "" {
+            continue
+        }
+
+        i := included.Search(tagName)
+        if len(included) > 0 && (i >= len(included) || included[i] != tagName) {
+            continue
+        }
+
+        value, err := ifd.TagValue(tag)
+        if err != nil {
+            if log.Is(err, exif.ErrUnhandledUnknownTypedTag) == true {
+                value = "!UNPARSEABLE"
+            } else {
+                log.Panic(err)
+            }
+        }
+
+        ifdName := ifd.Ii.IfdName
+
+        // Only the root ID is identified with a number-index suffix.
+        if ifd.Ii == exif.RootIi {
+            ifdName = fmt.Sprintf("%s%d", ifdName, ifd.Index)
+        }
+
+        valueStruct := map[string]interface{} {
+            "ifd": ifdName,
+            "tag": tagName,
+            "value": value,
+        }
+
+        distilled = append(distilled, valueStruct)
+    }
+
+    return distilled, nil
+}
 
 func handleRead() {
     options := arguments.Read
@@ -76,15 +143,21 @@ func handleRead() {
         }
     }
 
+    included := sort.StringSlice(options.SpecificTags)
+    included.Sort()
+
     if options.Json == true {
+        distilled := make([]map[string]interface{}, 0)
 
-// TODO(dustin): !! Finish.
+        distilled, err := flattenIfd(ifd, included, distilled)
+        log.PanicIf(err)
 
+        data, err := json.MarshalIndent(distilled, "", "    ")
+        log.PanicIf(err)
+
+        fmt.Println(string(data))
     } else {
         if len(options.SpecificTags) > 0 {
-            included := sort.StringSlice(options.SpecificTags)
-            included.Sort()
-
             ti := exif.NewTagIndex()
 
             for _, tag := range ifd.Entries {
@@ -101,6 +174,7 @@ func handleRead() {
                     tagName = it.Name
                 }
 
+                // Unknown tag.
                 if tagName == "" {
                     continue
                 }
