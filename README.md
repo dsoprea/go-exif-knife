@@ -4,4 +4,6 @@
 
 ## Overview
 
-A command-line tool to perform a multitude of surgical operations on the EXIF data in any file.
+A command-line tool to perform a multitude of surgical operations on the EXIF data in any file that contains it.
+
+**Under active development.**
