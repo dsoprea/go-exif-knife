@@ -17,6 +17,8 @@ type readParameters struct {
     JustTry bool `short:"s" long:"just-try" description:"Just try to parse. Print file-type and return (0) if success"`
     SpecificIfd string `short:"i" long:"ifd" description:"Specific IFD to look at"`
     SpecificTags []string `short:"t" long:"tag" description:"Specific tag to print (can be provided zero or more times)"`
+    JustFirstValues bool `short:"v" long:"just-first-values" description:"If specific tags are provided, just print the first value for each (if a list)"`
+    JustValues bool `short:"V" long:"just-values" description:"If specific tags are provided, just print the value for each"`
     Json bool `short:"j" long:"json" description:"Print as JSON"`
 }
 
@@ -118,7 +120,50 @@ func handleRead() {
                     }
                 }
 
-                fmt.Printf("%s: %v\n", tagName, value)
+// TODO(dustin): !! We should use the same formatting for the JustValues option, too.
+
+                if options.JustFirstValues == true {
+                    switch value.(type) {
+                    case []uint8:
+                        list_ := value.([]uint8)
+                        if len(list_) > 0 {
+                            fmt.Printf("%d\n", list_[0])
+                        }
+                    case []uint16:
+                        list_ := value.([]uint16)
+                        if len(list_) > 0 {
+                            fmt.Printf("%d\n", list_[0])
+                        }
+                    case []uint32:
+                        list_ := value.([]uint32)
+                        if len(list_) > 0 {
+                            fmt.Printf("%d\n", list_[0])
+                        }
+                    case []int32:
+                        list_ := value.([]int32)
+                        if len(list_) > 0 {
+                            fmt.Printf("%d\n", list_[0])
+                        }
+                    case []exif.Rational:
+                        list_ := value.([]exif.Rational)
+                        if len(list_) > 0 {
+                            fmt.Printf("%d/%d\n", list_[0].Numerator, list_[0].Denominator)
+                        }
+                    case []exif.SignedRational:
+                        list_ := value.([]exif.SignedRational)
+                        if len(list_) > 0 {
+                            fmt.Printf("%d/%d\n", list_[0].Numerator, list_[0].Denominator)
+                        }
+                    case string:
+                        fmt.Printf("%s\n", value.(string))
+                    default:
+                        fmt.Printf("%v\n", value)
+                    }
+                } else if options.JustValues == true {
+                    fmt.Printf("%v\n", value)
+                } else {
+                    fmt.Printf("%s: %v\n", tagName, value)
+                }
             }
         } else {
             ifd.PrintTagTree(true)
