@@ -36,7 +36,7 @@ var (
     arguments = new(parameters)
 )
 
-func exportIfd(ifd *exif.Ifd, included sort.StringSlice, distilled map[string]map[string]interface{}, restrictToIfd string) (err error) {
+func exportIfd(ifd *exif.Ifd, included sort.StringSlice, distilled map[string]map[string]interface{}) (err error) {
     defer func() {
         if state := recover(); state != nil {
             err = log.Wrap(state.(error))
@@ -49,61 +49,54 @@ func exportIfd(ifd *exif.Ifd, included sort.StringSlice, distilled map[string]ma
         currentIfdDesignation := exif.IfdDesignation(ifd.Ii, ifd.Index)
         currentIfdDesignation = strings.ToLower(currentIfdDesignation)
 
-        fmt.Printf("restrictToIfd: [%s] current: [%s]\n", restrictToIfd, currentIfdDesignation)
+        for _, tag := range ifd.Entries {
+            if tag.ChildIfdName != "" {
+                childIfd, err := ifd.ChildWithName(tag.ChildIfdName)
+                log.PanicIf(err)
 
-        // The whole IFD restriction implementation here is to make sure that,
-        // if a particular IFD was requested, we don't display any siblings but
-        // we display all children.
-        if restrictToIfd == "" || restrictToIfd == currentIfdDesignation {
-            for _, tag := range ifd.Entries {
-                if tag.ChildIfdName != "" {
-                    childIfd, err := ifd.ChildWithName(tag.ChildIfdName)
-                    log.PanicIf(err)
+                err = exportIfd(childIfd, included, distilled)
+                log.PanicIf(err)
 
-                    err = exportIfd(childIfd, included, distilled, "")
-                    log.PanicIf(err)
-
-                    continue
-                }
-
-                it, err := ti.Get(ifd.Identity(), tag.TagId)
-
-                tagName := ""
-                if err == nil {
-                    tagName = it.Name
-                }
-
-                // Unknown tag.
-                if tagName == "" {
-                    continue
-                }
-
-                i := included.Search(tagName)
-                if len(included) > 0 && (i >= len(included) || included[i] != tagName) {
-                    continue
-                }
-
-                value, err := ifd.TagValue(tag)
-                if err != nil {
-                    if log.Is(err, exif.ErrUnhandledUnknownTypedTag) == true {
-                        value = "!UNPARSEABLE"
-                    } else {
-                        log.Panic(err)
-                    }
-                }
-
-                ifdMap, found := distilled[currentIfdDesignation]
-
-                if found == true {
-                    ifdMap[tagName] = value
-                } else {
-                    ifdMap = map[string]interface{} {
-                        tagName: value,
-                    }
-                }
-
-                distilled[currentIfdDesignation] = ifdMap
+                continue
             }
+
+            it, err := ti.Get(ifd.Identity(), tag.TagId)
+
+            tagName := ""
+            if err == nil {
+                tagName = it.Name
+            }
+
+            // Unknown tag.
+            if tagName == "" {
+                continue
+            }
+
+            i := included.Search(tagName)
+            if len(included) > 0 && (i >= len(included) || included[i] != tagName) {
+                continue
+            }
+
+            value, err := ifd.TagValue(tag)
+            if err != nil {
+                if log.Is(err, exif.ErrUnhandledUnknownTypedTag) == true {
+                    value = "!UNPARSEABLE"
+                } else {
+                    log.Panic(err)
+                }
+            }
+
+            ifdMap, found := distilled[currentIfdDesignation]
+
+            if found == true {
+                ifdMap[tagName] = value
+            } else {
+                ifdMap = map[string]interface{} {
+                    tagName: value,
+                }
+            }
+
+            distilled[currentIfdDesignation] = ifdMap
         }
 
         ifd = ifd.NextIfd
@@ -128,6 +121,8 @@ func handleRead() {
 
         switch ifdName {
         case "ifd0":
+            // We're already on it.
+
         case "exif":
             ifd, err = ifd.ChildWithIfdIdentity(exif.ExifIi)
             log.PanicIf(err)
@@ -148,6 +143,8 @@ func handleRead() {
                 log.Panicf("IFD1 not found")
             }
 
+            ifd = ifd.NextIfd
+
         default:
             candidates := make([]string, len(exif.IfdDesignations))
             for key, _ := range exif.IfdDesignations {
@@ -157,6 +154,9 @@ func handleRead() {
             fmt.Printf("IFD name not valid. Use: %s\n", strings.Join(candidates, ", "))
             os.Exit(2)
         }
+
+        // If we're displaying a particular IFD, don't display any siblings.
+        ifd.NextIfd = nil
     }
 
     included := sort.StringSlice(options.SpecificTags)
@@ -165,7 +165,7 @@ func handleRead() {
     if options.Json == true {
         distilled := make(map[string]map[string]interface{})
 
-        err := exportIfd(ifd, included, distilled, options.SpecificIfd)
+        err := exportIfd(ifd, included, distilled)
         log.PanicIf(err)
 
         data, err := json.MarshalIndent(distilled, "", "    ")
