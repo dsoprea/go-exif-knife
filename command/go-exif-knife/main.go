@@ -26,6 +26,7 @@ type readParameters struct {
 
 type gpsParameters struct {
     Filepath string `short:"f" long:"filepath" required:"true" description:"File-path ('-' for STDIN)"`
+    IncludeS2Location bool `short:"2" long:"google-s2" description:"Include Google S2 location"`
     Json bool `short:"j" long:"json" description:"Print as JSON"`
 }
 
@@ -282,12 +283,23 @@ func handleGps() {
             "TimestampUnix": gi.Timestamp.Unix(),
         }
 
+        if options.IncludeS2Location == true {
+            distilled["S2LocationId"] = gi.S2CellId()
+        }
+
         data, err := json.MarshalIndent(distilled, "", "    ")
         log.PanicIf(err)
 
         fmt.Println(string(data))
     } else {
         fmt.Printf("%s\n", gi)
+
+        if options.IncludeS2Location == true {
+            s2LocationId := gi.S2CellId()
+
+            fmt.Printf("\n")
+            fmt.Printf("Google S2 Location: [%d]\n", s2LocationId)
+        }
     }
 }
 
