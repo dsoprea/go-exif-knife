@@ -8,6 +8,7 @@ import (
     "time"
 
     "encoding/json"
+    "io/ioutil"
 
     "github.com/jessevdk/go-flags"
     "github.com/dsoprea/go-logging"
@@ -30,8 +31,16 @@ type gpsParameters struct {
     Json bool `short:"j" long:"json" description:"Print as JSON"`
 }
 
+type thumbnailParameters struct {
+    Filepath string `short:"f" long:"filepath" required:"true" description:"Image file-path ('-' for STDIN)"`
+// TODO(dustin): !! Make sure we support STDIN.
+// TODO(dustin): !! When we support updating the thumbnail, try to validate the format.
+    OutputFilepath string `short:"o" long:"output-filepath" description:"Thumbnail output file-path ('-' for STDIN)"`
+}
+
 type parameters struct {
     Verbose bool `short:"v" long:"verbose" description:"Display logging"`
+    Thumbnail thumbnailParameters `command:"thumbnail" alias:"t" description:"Read/write thumbnail"`
     Read readParameters `command:"read" alias:"r" description:"Read/dump EXIF data"`
     Gps gpsParameters `command:"gps" alias:"g" description:"Read/dump GPS data from EXIF"`
 }
@@ -303,12 +312,32 @@ func handleGps() {
     }
 }
 
+func handleThumbnail() {
+    options := arguments.Thumbnail
+
+    _, ifd, err := exifknife.GetExif(options.Filepath)
+    log.PanicIf(err)
+
+    if options.OutputFilepath != "" {
+        thumbnailData, err := ifd.NextIfd.Thumbnail()
+        log.PanicIf(err)
+
+        err = ioutil.WriteFile(options.OutputFilepath, thumbnailData, 0644)
+        log.PanicIf(err)
+
+        fmt.Printf("Thumbnail is (%d) bytes and has been written to [%s].\n", len(thumbnailData), options.OutputFilepath)
+    } else {
+        fmt.Printf("Please provide an output file-path.\n")
+        os.Exit(1)
+    }
+}
+
 func main() {
     p := flags.NewParser(arguments, flags.Default)
 
     _, err := p.Parse()
     if err != nil {
-        os.Exit(-1)
+        os.Exit(1)
     }
 
     switch p.Active.Name {
@@ -316,5 +345,7 @@ func main() {
         handleRead()
     case "gps":
         handleGps()
+    case "thumbnail":
+        handleThumbnail()
     }
 }
