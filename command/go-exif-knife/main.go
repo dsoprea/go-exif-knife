@@ -23,13 +23,15 @@ type readParameters struct {
     Json bool `short:"j" long:"json" description:"Print as JSON"`
 }
 
-type gpsParameters struct {
-}
+// type gpsParameters struct {
+//     Filepath string `short:"f" long:"filepath" required:"true" description:"File-path ('-' for STDIN)"`
+//     Json bool `short:"j" long:"json" description:"Print as JSON"`
+// }
 
 type parameters struct {
     Verbose bool `short:"v" long:"verbose" description:"Display logging"`
-    Read readParameters `command:"read" name:"abc" alias:"r" description:"Read/dump EXIF data"`
-    Gps gpsParameters `command:"gps" name:"def" alias:"g" description:"Read/dump GPS data from EXIF"`
+    Read readParameters `command:"read" alias:"r" description:"Read/dump EXIF data"`
+    // Gps gpsParameters `command:"gps" alias:"g" description:"Read/dump GPS data from EXIF"`
 }
 
 var (
