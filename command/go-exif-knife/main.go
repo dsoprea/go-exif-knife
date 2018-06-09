@@ -5,6 +5,7 @@ import (
     "fmt"
     "strings"
     "sort"
+    "time"
 
     "encoding/json"
 
@@ -23,15 +24,15 @@ type readParameters struct {
     Json bool `short:"j" long:"json" description:"Print as JSON"`
 }
 
-// type gpsParameters struct {
-//     Filepath string `short:"f" long:"filepath" required:"true" description:"File-path ('-' for STDIN)"`
-//     Json bool `short:"j" long:"json" description:"Print as JSON"`
-// }
+type gpsParameters struct {
+    Filepath string `short:"f" long:"filepath" required:"true" description:"File-path ('-' for STDIN)"`
+    Json bool `short:"j" long:"json" description:"Print as JSON"`
+}
 
 type parameters struct {
     Verbose bool `short:"v" long:"verbose" description:"Display logging"`
     Read readParameters `command:"read" alias:"r" description:"Read/dump EXIF data"`
-    // Gps gpsParameters `command:"gps" alias:"g" description:"Read/dump GPS data from EXIF"`
+    Gps gpsParameters `command:"gps" alias:"g" description:"Read/dump GPS data from EXIF"`
 }
 
 var (
@@ -261,11 +262,33 @@ func handleRead() {
 }
 
 func handleGps() {
+    options := arguments.Gps
 
+    _, rootIfd, err := exifknife.GetExif(options.Filepath)
+    log.PanicIf(err)
 
-// TODO(dustin): !! Finish.
+    gpsIfd, err := rootIfd.ChildWithIfdIdentity(exif.GpsIi)
+    log.PanicIf(err)
 
+    gi, err := gpsIfd.GpsInfo()
+    log.PanicIf(err)
 
+    if options.Json == true {
+        distilled := map[string]interface{} {
+            "LatitudeDecimal": gi.Latitude.Decimal(),
+            "LongitudeDecimal": gi.Longitude.Decimal(),
+            "Altitude": gi.Altitude,
+            "Timestamp": gi.Timestamp.Format(time.RFC3339),
+            "TimestampUnix": gi.Timestamp.Unix(),
+        }
+
+        data, err := json.MarshalIndent(distilled, "", "    ")
+        log.PanicIf(err)
+
+        fmt.Println(string(data))
+    } else {
+        fmt.Printf("%s\n", gi)
+    }
 }
 
 func main() {
