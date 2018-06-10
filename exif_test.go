@@ -12,10 +12,10 @@ import (
 func TestGetExif_Jpeg(t *testing.T) {
     filepath := path.Join(assetsPath, "image.jpg")
 
-    mediaType, rootIfd, err := GetExif(filepath)
+    mc, err := GetExif(filepath)
     log.PanicIf(err)
 
-    if mediaType != "jpeg" {
+    if mc.MediaType != "jpeg" {
         t.Fatalf("media-type not 'jpeg'")
     }
 
@@ -26,9 +26,9 @@ func TestGetExif_Jpeg(t *testing.T) {
     log.PanicIf(err)
 
 
-    ite := rootIfd.EntriesByTagId[it.Id][0]
+    ite := mc.RootIfd.EntriesByTagId[it.Id][0]
 
-    value, err := rootIfd.TagValue(ite)
+    value, err := mc.RootIfd.TagValue(ite)
     log.PanicIf(err)
 
     expected := "Canon EOS 5D Mark III"
@@ -40,10 +40,10 @@ func TestGetExif_Jpeg(t *testing.T) {
 func TestGetExif_Png(t *testing.T) {
     filepath := path.Join(assetsPath, "image.png")
 
-    mediaType, rootIfd, err := GetExif(filepath)
+    mc, err := GetExif(filepath)
     log.PanicIf(err)
 
-    if mediaType != "png" {
+    if mc.MediaType != "png" {
         t.Fatalf("media-type not 'png'")
     }
 
@@ -54,9 +54,9 @@ func TestGetExif_Png(t *testing.T) {
     log.PanicIf(err)
 
 
-    ite := rootIfd.EntriesByTagId[it.Id][0]
+    ite := mc.RootIfd.EntriesByTagId[it.Id][0]
 
-    value, err := rootIfd.TagValue(ite)
+    value, err := mc.RootIfd.TagValue(ite)
     log.PanicIf(err)
 
     expected := []uint32 { 11 }
@@ -68,10 +68,10 @@ func TestGetExif_Png(t *testing.T) {
 func TestGetExif_Other(t *testing.T) {
     filepath := path.Join(assetsPath, "image.tiff")
 
-    mediaType, rootIfd, err := GetExif(filepath)
+    mc, err := GetExif(filepath)
     log.PanicIf(err)
 
-    if mediaType != "other" {
+    if mc.MediaType != "other" {
         t.Fatalf("media-type not 'other'")
     }
 
@@ -82,9 +82,9 @@ func TestGetExif_Other(t *testing.T) {
     log.PanicIf(err)
 
 
-    ite := rootIfd.EntriesByTagId[it.Id][0]
+    ite := mc.RootIfd.EntriesByTagId[it.Id][0]
 
-    value, err := rootIfd.TagValue(ite)
+    value, err := mc.RootIfd.TagValue(ite)
     log.PanicIf(err)
 
     expected := "Jean Cornillon"
