@@ -25,6 +25,12 @@ type readParameters struct {
     Json bool `short:"j" long:"json" description:"Print as JSON"`
 }
 
+type writeParameters struct {
+    Filepath string `short:"f" long:"filepath" required:"true" description:"File-path ('-' for STDIN)"`
+    SetTags []string `short:"s" long:"set-tag" required:"true" description:"Set tag (can be provided one or more times). Must look like '<ifd:ifd0,ifd1,exif,iop,gps>,<name>,<value>'."`
+    OutputFilepath string `short:"o" long:"output-filepath" required:"true" description:"Output file-path ('-' for STDIN)"`
+}
+
 type gpsParameters struct {
     Filepath string `short:"f" long:"filepath" required:"true" description:"File-path ('-' for STDIN)"`
     IncludeS2Location bool `short:"2" long:"google-s2" description:"Include Google S2 location"`
@@ -41,6 +47,7 @@ type parameters struct {
     Verbose bool `short:"v" long:"verbose" description:"Display logging"`
     Thumbnail thumbnailParameters `command:"thumbnail" alias:"t" description:"Read/write thumbnail"`
     Read readParameters `command:"read" alias:"r" description:"Read/dump EXIF data"`
+    Write writeParameters `command:"write" alias:"w" description:"Add/update EXIF data"`
     Gps gpsParameters `command:"gps" alias:"g" description:"Read/dump GPS data from EXIF"`
 }
 
@@ -120,52 +127,19 @@ func exportIfd(ifd *exif.Ifd, included sort.StringSlice, distilled map[string]ma
 func handleRead() {
     options := arguments.Read
 
-    mediaType, ifd, err := exifknife.GetExif(options.Filepath)
+    mc, err := exifknife.GetExif(options.Filepath)
     log.PanicIf(err)
 
     if options.JustTry {
-        fmt.Printf("%s\n", mediaType)
+        fmt.Printf("%s\n", mc.MediaType)
         return
     }
 
+    ifd := mc.RootIfd
+
     if options.SpecificIfd != "" {
-        ifdName := strings.ToLower(options.SpecificIfd)
-
-        switch ifdName {
-        case "ifd0":
-            // We're already on it.
-
-        case "exif":
-            ifd, err = ifd.ChildWithIfdIdentity(exif.ExifIi)
-            log.PanicIf(err)
-
-        case "iop":
-            exifIfd, err := ifd.ChildWithIfdIdentity(exif.ExifIi)
-            log.PanicIf(err)
-
-            ifd, err = exifIfd.ChildWithIfdIdentity(exif.ExifIopIi)
-            log.PanicIf(err)
-
-        case "gps":
-            ifd, err = ifd.ChildWithIfdIdentity(exif.GpsIi)
-            log.PanicIf(err)
-
-        case "ifd1":
-            if ifd.NextIfd == nil {
-                log.Panicf("IFD1 not found")
-            }
-
-            ifd = ifd.NextIfd
-
-        default:
-            candidates := make([]string, len(exif.IfdDesignations))
-            for key, _ := range exif.IfdDesignations {
-                candidates = append(candidates, key)
-            }
-
-            fmt.Printf("IFD name not valid. Use: %s\n", strings.Join(candidates, ", "))
-            os.Exit(2)
-        }
+        ifd, err = exif.FindIfdFromRootIfd(ifd, options.SpecificIfd)
+        log.Panic(err)
 
         // If we're displaying a particular IFD, don't display any siblings.
         ifd.NextIfd = nil
@@ -270,13 +244,64 @@ func handleRead() {
     }
 }
 
+func handleWrite() {
+    options := arguments.Write
+
+    mc, err := exifknife.GetExif(options.Filepath)
+    log.PanicIf(err)
+
+    itevr := exif.NewIfdTagEntryValueResolver(mc.RawExif, mc.RootIfd.ByteOrder)
+    rootIb := exif.NewIfdBuilderFromExistingChain(mc.RootIfd, itevr)
+
+    ti := exif.NewTagIndex()
+
+    for _, fieldSpec := range options.SetTags {
+        // Split something like "<IFD name>,tag name,value".
+        parts := strings.SplitN(fieldSpec, ",", 3)
+
+        ifdDesignation := parts[0]
+        tagName := parts[1]
+        valueString := parts[2]
+
+
+        // Validates the IFD designation.
+        ini, found := exif.IfdDesignations[ifdDesignation]
+        if found == false {
+            log.Panicf("IFD designation is not valid: [%s]", ifdDesignation)
+        }
+
+        // Validates the tag.
+        it, err := ti.GetWithName(ini.Ii, tagName)
+        log.PanicIf(err)
+
+        // Ensure we don't have to deal with undefined-type tags at this point in time.
+        if it.Type == exif.TypeUndefined {
+// TODO(dustin): !! Circle back to this.
+            log.Panicf("undefined-type tags are not currently supported for writing")
+        }
+
+        tt := exif.NewTagType(it.Type, mc.RootIfd.ByteOrder)
+
+        value, err := tt.FromString(valueString)
+        log.PanicIf(err)
+
+        childIb, err := exif.GetOrCreateIbFromRootIb(rootIb, ifdDesignation)
+
+        err = childIb.SetStandardWithName(tagName, value)
+        log.PanicIf(err)
+    }
+
+    err = exifknife.SetExif(mc, options.OutputFilepath, rootIb)
+    log.PanicIf(err)
+}
+
 func handleGps() {
     options := arguments.Gps
 
-    _, rootIfd, err := exifknife.GetExif(options.Filepath)
+    mc, err := exifknife.GetExif(options.Filepath)
     log.PanicIf(err)
 
-    gpsIfd, err := rootIfd.ChildWithIfdIdentity(exif.GpsIi)
+    gpsIfd, err := mc.RootIfd.ChildWithIfdIdentity(exif.GpsIi)
     log.PanicIf(err)
 
     gi, err := gpsIfd.GpsInfo()
@@ -311,24 +336,37 @@ func handleGps() {
     }
 }
 
+func writeBytes(outputFilepath string, data []byte) (err error) {
+    defer func() {
+        if state := recover(); state != nil {
+            err = log.Wrap(state.(error))
+        }
+    }()
+
+    if outputFilepath == "-" {
+        os.Stdout.Write(data)
+    } else {
+        err = ioutil.WriteFile(outputFilepath, data, 0644)
+        log.PanicIf(err)
+    }
+
+    return nil
+}
+
 func handleThumbnail() {
     options := arguments.Thumbnail
 
-    _, ifd, err := exifknife.GetExif(options.Filepath)
+    mc, err := exifknife.GetExif(options.Filepath)
     log.PanicIf(err)
+
+    ifd := mc.RootIfd
 
     if options.OutputFilepath != "" {
         thumbnailData, err := ifd.NextIfd.Thumbnail()
         log.PanicIf(err)
 
-        if options.OutputFilepath == "-" {
-            os.Stdout.Write(thumbnailData)
-        } else {
-            err = ioutil.WriteFile(options.OutputFilepath, thumbnailData, 0644)
-            log.PanicIf(err)
-
-            fmt.Printf("Thumbnail is (%d) bytes and has been written to [%s].\n", len(thumbnailData), options.OutputFilepath)
-        }
+        err = writeBytes(options.OutputFilepath, thumbnailData)
+        log.PanicIf(err)
     } else {
         fmt.Printf("Please provide an output file-path.\n")
         os.Exit(1)
@@ -346,6 +384,8 @@ func main() {
     switch p.Active.Name {
     case "read":
         handleRead()
+    case "write":
+        handleWrite()
     case "gps":
         handleGps()
     case "thumbnail":
