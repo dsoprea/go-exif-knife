@@ -1,12 +1,14 @@
-package exifknife
+package exifknifewrite
 
 import (
     "strings"
 
     "github.com/dsoprea/go-logging"
-
     "github.com/dsoprea/go-exif"
+
+    "github.com/dsoprea/go-exif-knife"
 )
+
 
 type ExifWrite struct {
 
@@ -19,7 +21,7 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
         }
     }()
 
-    mc, err := GetExif(inputFilepath)
+    mc, err := exifknife.GetExif(inputFilepath)
     log.PanicIf(err)
 
     itevr := exif.NewIfdTagEntryValueResolver(mc.RawExif, mc.RootIfd.ByteOrder)
@@ -63,7 +65,7 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
         log.PanicIf(err)
     }
 
-    err = SetExif(mc, outputFilepath, rootIb)
+    err = exifknife.SetExif(mc, outputFilepath, rootIb)
     log.PanicIf(err)
 
     return nil

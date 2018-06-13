@@ -2,18 +2,14 @@ package main
 
 import (
     "os"
-    "fmt"
-    "strings"
-    "sort"
-    "time"
-
-    "encoding/json"
-    "io/ioutil"
 
     "github.com/jessevdk/go-flags"
     "github.com/dsoprea/go-logging"
-    "github.com/dsoprea/go-exif"
-    "github.com/dsoprea/go-exif-knife"
+
+    "github.com/dsoprea/go-exif-knife/handler/read"
+    "github.com/dsoprea/go-exif-knife/handler/write"
+    "github.com/dsoprea/go-exif-knife/handler/gps"
+    "github.com/dsoprea/go-exif-knife/handler/thumbnail"
 )
 
 type readParameters struct {
@@ -55,267 +51,6 @@ var (
     arguments = new(parameters)
 )
 
-func exportIfd(ifd *exif.Ifd, included sort.StringSlice, distilled map[string]map[string]interface{}) (err error) {
-    defer func() {
-        if state := recover(); state != nil {
-            err = log.Wrap(state.(error))
-        }
-    }()
-
-    ti := exif.NewTagIndex()
-
-    for ; ifd != nil ; {
-        currentIfdDesignation := exif.IfdDesignation(ifd.Ii, ifd.Index)
-        currentIfdDesignation = strings.ToLower(currentIfdDesignation)
-
-        for _, tag := range ifd.Entries {
-            if tag.ChildIfdName != "" {
-                childIfd, err := ifd.ChildWithName(tag.ChildIfdName)
-                log.PanicIf(err)
-
-                err = exportIfd(childIfd, included, distilled)
-                log.PanicIf(err)
-
-                continue
-            }
-
-            it, err := ti.Get(ifd.Identity(), tag.TagId)
-
-            tagName := ""
-            if err == nil {
-                tagName = it.Name
-            }
-
-            // Unknown tag.
-            if tagName == "" {
-                continue
-            }
-
-            i := included.Search(tagName)
-            if len(included) > 0 && (i >= len(included) || included[i] != tagName) {
-                continue
-            }
-
-            value, err := ifd.TagValue(tag)
-            if err != nil {
-                if log.Is(err, exif.ErrUnhandledUnknownTypedTag) == true {
-                    value = "!UNPARSEABLE"
-                } else {
-                    log.Panic(err)
-                }
-            }
-
-            ifdMap, found := distilled[currentIfdDesignation]
-
-            if found == true {
-                ifdMap[tagName] = value
-            } else {
-                ifdMap = map[string]interface{} {
-                    tagName: value,
-                }
-            }
-
-            distilled[currentIfdDesignation] = ifdMap
-        }
-
-        ifd = ifd.NextIfd
-    }
-
-    return nil
-}
-
-func handleRead(options *readParameters) {
-    mc, err := exifknife.GetExif(options.Filepath)
-    log.PanicIf(err)
-
-    if options.JustTry {
-        fmt.Printf("%s\n", mc.MediaType)
-        return
-    }
-
-    ifd := mc.RootIfd
-
-    if options.SpecificIfd != "" {
-        ifd, err = exif.FindIfdFromRootIfd(ifd, options.SpecificIfd)
-        log.Panic(err)
-
-        // If we're displaying a particular IFD, don't display any siblings.
-        ifd.NextIfd = nil
-    }
-
-    included := sort.StringSlice(options.SpecificTags)
-    included.Sort()
-
-    if options.Json == true {
-        distilled := make(map[string]map[string]interface{})
-
-        err := exportIfd(ifd, included, distilled)
-        log.PanicIf(err)
-
-        data, err := json.MarshalIndent(distilled, "", "    ")
-        log.PanicIf(err)
-
-        fmt.Println(string(data))
-    } else {
-        if len(options.SpecificTags) > 0 {
-            ti := exif.NewTagIndex()
-
-            for _, tag := range ifd.Entries {
-                // Skip child IFDs. These wouldn't make sense to anyone who
-                // doesn't understand EXIF struture.
-                if tag.ChildIfdName != "" {
-                    continue
-                }
-
-                it, err := ti.Get(ifd.Identity(), tag.TagId)
-
-                tagName := ""
-                if err == nil {
-                    tagName = it.Name
-                }
-
-                // Unknown tag.
-                if tagName == "" {
-                    continue
-                }
-
-                i := included.Search(tagName)
-                if i >= len(included) || included[i] != tagName {
-                    continue
-                }
-
-                value, err := ifd.TagValue(tag)
-                if err != nil {
-                    if log.Is(err, exif.ErrUnhandledUnknownTypedTag) == true {
-                        value = "!UNPARSEABLE"
-                    } else {
-                        log.Panic(err)
-                    }
-                }
-
-                if options.JustValues == false {
-                    fmt.Printf("%s: ", tagName)
-                }
-
-                switch value.(type) {
-                case []uint8:
-                    list_ := value.([]uint8)
-                    for _, item := range list_ {
-                        fmt.Printf("%d ", item)
-                    }
-                case []uint16:
-                    list_ := value.([]uint16)
-                    for _, item := range list_ {
-                        fmt.Printf("%d ", item)
-                    }
-                case []uint32:
-                    list_ := value.([]uint32)
-                    for _, item := range list_ {
-                        fmt.Printf("%d ", item)
-                    }
-                case []int32:
-                    list_ := value.([]int32)
-                    for _, item := range list_ {
-                        fmt.Printf("%d ", item)
-                    }
-                case []exif.Rational:
-                    list_ := value.([]exif.Rational)
-                    for _, item := range list_ {
-                        fmt.Printf("%d/%d ", item.Numerator, item.Denominator)
-                    }
-                case []exif.SignedRational:
-                    list_ := value.([]exif.SignedRational)
-                    for _, item := range list_ {
-                        fmt.Printf("%d/%d ", item.Numerator, item.Denominator)
-                    }
-                case string:
-                    fmt.Printf("%s", value.(string))
-                default:
-                    fmt.Printf("%v", value)
-                }
-
-                fmt.Printf("\n")
-            }
-        } else {
-            ifd.PrintTagTree(true)
-        }
-    }
-}
-
-func handleGps(options *gpsParameters) {
-    mc, err := exifknife.GetExif(options.Filepath)
-    log.PanicIf(err)
-
-    gpsIfd, err := mc.RootIfd.ChildWithIfdIdentity(exif.GpsIi)
-    log.PanicIf(err)
-
-    gi, err := gpsIfd.GpsInfo()
-    log.PanicIf(err)
-
-    if options.Json == true {
-        distilled := map[string]interface{} {
-            "LatitudeDecimal": gi.Latitude.Decimal(),
-            "LongitudeDecimal": gi.Longitude.Decimal(),
-            "Altitude": gi.Altitude,
-            "Timestamp": gi.Timestamp.Format(time.RFC3339),
-            "TimestampUnix": gi.Timestamp.Unix(),
-        }
-
-        if options.IncludeS2Location == true {
-            distilled["S2LocationId"] = gi.S2CellId()
-        }
-
-        data, err := json.MarshalIndent(distilled, "", "    ")
-        log.PanicIf(err)
-
-        fmt.Println(string(data))
-    } else {
-        fmt.Printf("%s\n", gi)
-
-        if options.IncludeS2Location == true {
-            s2LocationId := gi.S2CellId()
-
-            fmt.Printf("\n")
-            fmt.Printf("Google S2 Location: [%d]\n", s2LocationId)
-        }
-    }
-}
-
-func writeBytes(outputFilepath string, data []byte) (err error) {
-    defer func() {
-        if state := recover(); state != nil {
-            err = log.Wrap(state.(error))
-        }
-    }()
-
-    if outputFilepath == "-" {
-        os.Stdout.Write(data)
-    } else {
-        err = ioutil.WriteFile(outputFilepath, data, 0644)
-        log.PanicIf(err)
-    }
-
-    return nil
-}
-
-func handleThumbnail(options *thumbnailParameters) {
-    mc, err := exifknife.GetExif(options.Filepath)
-    log.PanicIf(err)
-
-    ifd := mc.RootIfd
-
-    if options.OutputFilepath != "" {
-        thumbnailData, err := ifd.NextIfd.Thumbnail()
-        log.PanicIf(err)
-
-        err = writeBytes(options.OutputFilepath, thumbnailData)
-        log.PanicIf(err)
-    } else {
-        fmt.Printf("Please provide an output file-path.\n")
-        os.Exit(1)
-    }
-}
-
 func main() {
     p := flags.NewParser(arguments, flags.Default)
 
@@ -326,20 +61,35 @@ func main() {
 
     switch p.Active.Name {
     case "read":
-        handleRead(&arguments.Read)
+        options := &arguments.Read
+
+        er := new(exifkniferead.ExifRead)
+
+        err := er.Read(options.Filepath, options.JustTry, options.SpecificIfd, options.SpecificTags, options.JustValues, options.Json)
+        log.PanicIf(err)
 
     case "write":
         options := &arguments.Write
 
-        ew := new(exifknife.ExifWrite)
+        ew := new(exifknifewrite.ExifWrite)
 
         err := ew.Write(options.Filepath, options.SetTags, options.OutputFilepath)
         log.PanicIf(err)
 
     case "gps":
-        handleGps(&arguments.Gps)
+        options := &arguments.Gps
+
+        eg := new(exifknifegps.ExifGps)
+
+        err := eg.ReadGps(options.Filepath, options.IncludeS2Location, options.Json)
+        log.PanicIf(err)
 
     case "thumbnail":
-        handleThumbnail(&arguments.Thumbnail)
+        options := &arguments.Thumbnail
+
+        et := new(exifknifethumbnail.ExifThumbnail)
+
+        err := et.ExtractThumbnail(options.Filepath, options.OutputFilepath)
+        log.PanicIf(err)
     }
 }

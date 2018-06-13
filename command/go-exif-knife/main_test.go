@@ -7,9 +7,9 @@ import (
     "reflect"
 
     "io/ioutil"
-    "encoding/json"
 
     "github.com/dsoprea/go-logging"
+
     "github.com/dsoprea/go-exif-knife"
 )
 
@@ -17,31 +17,26 @@ var (
     appFilepath = ""
 )
 
-func getExif(filepath string) (exifInfo map[string]map[string]interface{}) {
-    parts := []string {
-        "go", "run", appFilepath, "read",
-        "--filepath", filepath,
-        "--json",
-    }
-
-    output, err := exifknife.RunCommand(parts...)
-    log.PanicIf(err)
-
-    exifInfo = make(map[string]map[string]interface{})
-
-    err = json.Unmarshal(output, &exifInfo)
-    log.PanicIf(err)
-
-    return exifInfo
-}
-
-func TestMain_ReadAndWrite(t *testing.T) {
+func TestMain_Read(t *testing.T) {
     imageFilepath := path.Join(assetsPath, "gps.jpg")
 
 
     // Check original value.
 
-    exifInfo := getExif(imageFilepath)
+    exifInfo := exifknife.CommandGetExif(imageFilepath)
+
+    if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
+        t.Fatalf("'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
+    }
+}
+
+func TestMain_Write(t *testing.T) {
+    imageFilepath := path.Join(assetsPath, "gps.jpg")
+
+
+    // Check original value.
+
+    exifInfo := exifknife.CommandGetExif(imageFilepath)
 
     if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
         t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
@@ -77,10 +72,36 @@ func TestMain_ReadAndWrite(t *testing.T) {
 
     // Check updated value.
 
-    exifInfo = getExif(outputFilepath)
+    exifInfo = exifknife.CommandGetExif(outputFilepath)
 
     if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "abc") != true {
         t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
+    }
+}
+
+func TestMain_Gps(t *testing.T) {
+    imageFilepath := path.Join(assetsPath, "gps.jpg")
+
+    parts := []string {
+        "go", "run", appFilepath, "gps",
+        "--filepath", imageFilepath,
+        "--json",
+    }
+
+    output, err := exifknife.RunCommand(parts...)
+    log.PanicIf(err)
+
+    expected := `{
+    "Altitude": 0,
+    "LatitudeDecimal": 26.586666666666666,
+    "LongitudeDecimal": -80.05361111111111,
+    "Timestamp": "2018-04-29T01:22:57Z",
+    "TimestampUnix": 1524964977
+}
+`
+
+    if string(output) != expected {
+        t.Fatalf("GPS result not correct.")
     }
 }
 

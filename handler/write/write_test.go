@@ -1,4 +1,4 @@
-package exifknife
+package exifknifewrite
 
 import (
     "testing"
