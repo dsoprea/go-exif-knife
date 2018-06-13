@@ -1,0 +1,5 @@
+- Add support for dropping tags.
+- Add support for dropping all EXIF.
+- Print coordinates in degree notation.
+- Add thumbnail.
+  - Need to validate/convert compression.
