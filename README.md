@@ -4,7 +4,9 @@
 
 ## Overview
 
-A command-line tool to perform a multitude of surgical operations on the EXIF data in any file that contains it.
+This is a command-line tool to perform a multitude of surgical operations on the EXIF data in any file that contains it.
+
+This tool has been written on top of [go-exif](https://github.com/dsoprea/go-exif), a complete EXIF implementation.
 
 
 ## Image Support
@@ -21,11 +23,31 @@ $ ./go-exif-knife read --filepath /tmp/updated.png
 ```
 
 
+## Install
+
+### Get
+
+- Get via [Github Releases](https://github.com/dsoprea/go-exif-knife/releases)
+- Get via go-get and build: "go get github.com/dsoprea/go-exif-knife"
+
+### Install
+
+1. Make the file executable ("chmod 755 [filename]")
+2. Put the binary in your path.
+
+
+## Usage
+
+This tool is comprised of one tool with multiple subcommands. The root tool and the various subcommands provide complete command-line help.
+
+
 ## Examples
 
 ### Read
 
 #### Print All Tags
+
+Output (shortened for succinctness):
 
 ```
 $ ./go-exif-knife read --filepath image.jpg
@@ -33,9 +55,6 @@ $ ./go-exif-knife read --filepath image.jpg
  - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x010f) TAG-TYPE=[ASCII] UNIT-COUNT=(8)> NAME=[Make] VALUE=[samsung]
  - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0110) TAG-TYPE=[ASCII] UNIT-COUNT=(9)> NAME=[Model] VALUE=[SM-N920T]
  - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0112) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[Orientation] VALUE=[[1]]
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x011a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[XResolution] VALUE=[[{72 1}]]
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x011b) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[YResolution] VALUE=[[{72 1}]]
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0128) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ResolutionUnit] VALUE=[[2]]
  - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0131) TAG-TYPE=[ASCII] UNIT-COUNT=(12)> NAME=[Software] VALUE=[GIMP 2.8.20]
  - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0132) TAG-TYPE=[ASCII] UNIT-COUNT=(20)> NAME=[DateTime] VALUE=[2018:06:09 01:07:30]
  - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0213) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[YCbCrPositioning] VALUE=[[1]]
@@ -44,16 +63,6 @@ $ ./go-exif-knife read --filepath image.jpg
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x829a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[ExposureTime] VALUE=[[{1 13}]]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x829d) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[FNumber] VALUE=[[{19 10}]]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x8822) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ExposureProgram] VALUE=[[2]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x8827) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ISOSpeedRatings] VALUE=[[200]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9000) TAG-TYPE=[UNDEFINED] UNIT-COUNT=(4)> NAME=[ExifVersion] VALUE=[0220]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9003) TAG-TYPE=[ASCII] UNIT-COUNT=(20)> NAME=[DateTimeOriginal] VALUE=[2018:04:28 21:23:12]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9004) TAG-TYPE=[ASCII] UNIT-COUNT=(20)> NAME=[DateTimeDigitized] VALUE=[2018:04:28 21:23:12]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9201) TAG-TYPE=[SRATIONAL] UNIT-COUNT=(1)> NAME=[ShutterSpeedValue] VALUE=[[{374 100}]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9202) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[ApertureValue] VALUE=[[{185 100}]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9203) TAG-TYPE=[SRATIONAL] UNIT-COUNT=(1)> NAME=[BrightnessValue] VALUE=[[{-57 100}]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9204) TAG-TYPE=[SRATIONAL] UNIT-COUNT=(1)> NAME=[ExposureBiasValue] VALUE=[[{0 10}]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9205) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[MaxApertureValue] VALUE=[[{185 100}]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9207) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[MeteringMode] VALUE=[[2]]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9209) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[Flash] VALUE=[[0]]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x920a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[FocalLength] VALUE=[[{430 100}]]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x9286) TAG-TYPE=[UNDEFINED] UNIT-COUNT=(21)> NAME=[UserComment] VALUE=[UserComment<SIZE=(13) ENCODING=[ASCII] V=[0 0 0 73 73 67 83 65]... LEN=(13)>]
@@ -65,19 +74,11 @@ $ ./go-exif-knife read --filepath image.jpg
      IFD: Ifd<ID=(4) PARENT-IFD=[Exif] IFD=[Iop] INDEX=(0) COUNT=(2) OFF=(0x02b2) CHILDREN=(0) PARENT=(0x00d4) NEXT-IFD=(0x0000)>
      - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0001) TAG-TYPE=[ASCII] UNIT-COUNT=(4)> NAME=[InteroperabilityIndex] VALUE=[R98]
      - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0002) TAG-TYPE=[UNDEFINED] UNIT-COUNT=(4)> NAME=[InteroperabilityVersion] VALUE=[0100]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0xa402) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ExposureMode] VALUE=[[0]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0xa403) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[WhiteBalance] VALUE=[[0]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0xa405) TAG-TYPE=[LONG] UNIT-COUNT=(1)> NAME=[FocalLengthIn35mmFilm] VALUE=[[28]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0xa406) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[SceneCaptureType] VALUE=[[0]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0xa420) TAG-TYPE=[ASCII] UNIT-COUNT=(33)> NAME=[ImageUniqueID] VALUE=[b2f7216f7a3e04a00000000000000000]
  - TAG: IfdTagEntry<TAG-IFD=[GPSInfo] TAG-ID=(0x8825) TAG-TYPE=[LONG] UNIT-COUNT=(1)>
    IFD: Ifd<ID=(2) PARENT-IFD=[IFD] IFD=[GPSInfo] INDEX=(0) COUNT=(9) OFF=(0x02d0) CHILDREN=(0) PARENT=(0x0008) NEXT-IFD=(0x0000)>
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0000) TAG-TYPE=[BYTE] UNIT-COUNT=(4)> NAME=[GPSVersionID] VALUE=[[2 2 0 0]]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0001) TAG-TYPE=[ASCII] UNIT-COUNT=(2)> NAME=[GPSLatitudeRef] VALUE=[N]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0002) TAG-TYPE=[RATIONAL] UNIT-COUNT=(3)> NAME=[GPSLatitude] VALUE=[[{26 1} {35 1} {12 1}]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0003) TAG-TYPE=[ASCII] UNIT-COUNT=(2)> NAME=[GPSLongitudeRef] VALUE=[W]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0004) TAG-TYPE=[RATIONAL] UNIT-COUNT=(3)> NAME=[GPSLongitude] VALUE=[[{80 1} {3 1} {13 1}]]
-   - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0005) TAG-TYPE=[BYTE] UNIT-COUNT=(1)> NAME=[GPSAltitudeRef] VALUE=[[1]]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0006) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[GPSAltitude] VALUE=[[{0 1}]]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0007) TAG-TYPE=[RATIONAL] UNIT-COUNT=(3)> NAME=[GPSTimeStamp] VALUE=[[{1 1} {22 1} {57 1}]]
    - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x001d) TAG-TYPE=[ASCII] UNIT-COUNT=(11)> NAME=[GPSDateStamp] VALUE=[2018:04:29]
