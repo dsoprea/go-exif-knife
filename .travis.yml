@@ -1,13 +1,29 @@
 language: go
 go:
-  - master
-  - "1.10"
-  - "1.9"
-  - "1.8"
-  - "1.7"
-  - "1.6"
+- master
+- stable
+- '1.10'
+- '1.9'
+- '1.8'
+- '1.7'
+- '1.6'
 install:
-  - go get -t ./...
-  - go get github.com/mattn/goveralls
+- go get -t ./...
+- go get github.com/mattn/goveralls
+- go get github.com/mitchellh/gox
 script:
-  - goveralls -v -service=travis-ci
+- goveralls -v -service=travis-ci
+before_deploy:
+- gox -output "build/{{.Dir}}.{{.OS}}-{{.Arch}}" ./...
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: TQ5ShFSvOitwQUvdh6f2J54a0UvH11xjYo7Yt3xU794U/pcfQ8W7Tqcfn6KblCkRZ0UCeBz/mgqK3L5nk35eaNqtYXRMofYjorNKM2s7PSXJLpmmegL5PdUKKlWZQliECtq/qcqUWsyIct5YurAK65z6NA76Mx/yAhv4UYarsex8v/9Udf4ewDfo5DToOst5DIaX9rEhMsiePHFeko9N2oawaFpR8Stx0HjLrU7NGokQrfVavuVNtg1Fqs6/DX0BAyC2lRbVoDv0S+tRyXQ6We2xmoyLDow2NPVygDxoeig49GbK26jvZhym5DdjiHxWzvYkmPCclilNv1EG0ARARsDjdGAj5cp5H2yw5wJAvMWdfAI9wHG3UNNbKaowfTEfKbOwgVw7YPjlWym2L8Tjqod8hHZMp/3q04XzkF23SpnsUWM5v21zMNQTui0Er0MfiS2AE5vPG+jAdVZq53IFkL7T8fSBM4krcFHX/MTuoKDU+KLTjn92ecZCwWy80uinrqCwa1GNfVNub5wCJdPIulZCqaaKcp40c4FN9nPZM4jnwtPH6KfvvN4A0U9+pTmfHaxvTgRbSDzUWQIJUT+NripVgW/QArZL2m5XY72hAXJcSt1dws89Cktt+j+IbYrfG7RLIYewUYlgaIJK0BZsFu5WC6FtoTjNtGWZSZrmOys=
+  file_glob: true
+  file: build/*
+  overwrite: true
+  on:
+    repo: dsoprea/go-exif-knife
+    go: 'stable'
+    tags: true
