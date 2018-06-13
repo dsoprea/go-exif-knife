@@ -27,7 +27,7 @@ type readParameters struct {
 
 type writeParameters struct {
     Filepath string `short:"f" long:"filepath" required:"true" description:"File-path ('-' for STDIN)"`
-    SetTags []string `short:"s" long:"set-tag" required:"true" description:"Set tag (can be provided one or more times). Must look like '<ifd:ifd0,ifd1,exif,iop,gps>,<name>,<value>'."`
+    SetTags []string `short:"s" long:"set-tag" description:"Set tag (can be provided one or more times). Must look like '<ifd:ifd0,ifd1,exif,iop,gps>,<name>,<value>'."`
     OutputFilepath string `short:"o" long:"output-filepath" required:"true" description:"Output file-path ('-' for STDIN)"`
 }
 
@@ -124,9 +124,7 @@ func exportIfd(ifd *exif.Ifd, included sort.StringSlice, distilled map[string]ma
     return nil
 }
 
-func handleRead() {
-    options := arguments.Read
-
+func handleRead(options *readParameters) {
     mc, err := exifknife.GetExif(options.Filepath)
     log.PanicIf(err)
 
@@ -244,60 +242,7 @@ func handleRead() {
     }
 }
 
-func handleWrite() {
-    options := arguments.Write
-
-    mc, err := exifknife.GetExif(options.Filepath)
-    log.PanicIf(err)
-
-    itevr := exif.NewIfdTagEntryValueResolver(mc.RawExif, mc.RootIfd.ByteOrder)
-    rootIb := exif.NewIfdBuilderFromExistingChain(mc.RootIfd, itevr)
-
-    ti := exif.NewTagIndex()
-
-    for _, fieldSpec := range options.SetTags {
-        // Split something like "<IFD name>,tag name,value".
-        parts := strings.SplitN(fieldSpec, ",", 3)
-
-        ifdDesignation := parts[0]
-        tagName := parts[1]
-        valueString := parts[2]
-
-
-        // Validates the IFD designation.
-        ini, found := exif.IfdDesignations[ifdDesignation]
-        if found == false {
-            log.Panicf("IFD designation is not valid: [%s]", ifdDesignation)
-        }
-
-        // Validates the tag.
-        it, err := ti.GetWithName(ini.Ii, tagName)
-        log.PanicIf(err)
-
-        // Ensure we don't have to deal with undefined-type tags at this point in time.
-        if it.Type == exif.TypeUndefined {
-// TODO(dustin): !! Circle back to this.
-            log.Panicf("undefined-type tags are not currently supported for writing")
-        }
-
-        tt := exif.NewTagType(it.Type, mc.RootIfd.ByteOrder)
-
-        value, err := tt.FromString(valueString)
-        log.PanicIf(err)
-
-        childIb, err := exif.GetOrCreateIbFromRootIb(rootIb, ifdDesignation)
-
-        err = childIb.SetStandardWithName(tagName, value)
-        log.PanicIf(err)
-    }
-
-    err = exifknife.SetExif(mc, options.OutputFilepath, rootIb)
-    log.PanicIf(err)
-}
-
-func handleGps() {
-    options := arguments.Gps
-
+func handleGps(options *gpsParameters) {
     mc, err := exifknife.GetExif(options.Filepath)
     log.PanicIf(err)
 
@@ -353,9 +298,7 @@ func writeBytes(outputFilepath string, data []byte) (err error) {
     return nil
 }
 
-func handleThumbnail() {
-    options := arguments.Thumbnail
-
+func handleThumbnail(options *thumbnailParameters) {
     mc, err := exifknife.GetExif(options.Filepath)
     log.PanicIf(err)
 
@@ -383,12 +326,20 @@ func main() {
 
     switch p.Active.Name {
     case "read":
-        handleRead()
+        handleRead(&arguments.Read)
+
     case "write":
-        handleWrite()
+        options := &arguments.Write
+
+        ew := new(exifknife.ExifWrite)
+
+        err := ew.Write(options.Filepath, options.SetTags, options.OutputFilepath)
+        log.PanicIf(err)
+
     case "gps":
-        handleGps()
+        handleGps(&arguments.Gps)
+
     case "thumbnail":
-        handleThumbnail()
+        handleThumbnail(&arguments.Thumbnail)
     }
 }

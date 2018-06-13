@@ -48,12 +48,11 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
         log.PanicIf(err)
     }
 
-// TODO(dustin): !! Add test for all of this.
-
     jmp := jpegstructure.NewJpegMediaParser()
     pmp := pngstructure.NewPngMediaParser()
 
     mt := ""
+
     if imageFilepath != "-" {
         extension := filepath.Ext(imageFilepath)
         extension = strings.ToLower(extension)
