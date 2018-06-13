@@ -3,6 +3,8 @@ package exifknifewrite
 import (
     "strings"
 
+    "encoding/binary"
+
     "github.com/dsoprea/go-logging"
     "github.com/dsoprea/go-exif"
 
@@ -24,8 +26,13 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
     mc, err := exifknife.GetExif(inputFilepath)
     log.PanicIf(err)
 
-    itevr := exif.NewIfdTagEntryValueResolver(mc.RawExif, mc.RootIfd.ByteOrder)
-    rootIb := exif.NewIfdBuilderFromExistingChain(mc.RootIfd, itevr)
+    var rootIb *exif.IfdBuilder
+    if mc.RootIfd != nil {
+        itevr := exif.NewIfdTagEntryValueResolver(mc.RawExif, mc.RootIfd.ByteOrder)
+        rootIb = exif.NewIfdBuilderFromExistingChain(mc.RootIfd, itevr)
+    } else {
+        rootIb = exif.NewIfdBuilder(exif.RootIi, binary.BigEndian)
+    }
 
     ti := exif.NewTagIndex()
 

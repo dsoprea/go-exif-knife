@@ -3,6 +3,7 @@ package exifknife
 import (
     "strings"
     "os"
+    "errors"
 
     "path/filepath"
     "io/ioutil"
@@ -17,6 +18,10 @@ const (
     JpegMediaType = "jpeg"
     PngMediaType = "png"
     OtherMediaType = "other"
+)
+
+var (
+    ErrNoExif = errors.New("file does not have EXIF")
 )
 
 
@@ -75,34 +80,62 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
     }
 
     if mt == JpegMediaType {
+        mc = &MediaContext{
+            MediaType: JpegMediaType,
+            RootIfd: nil,
+            RawExif: nil,
+            Media: nil,
+        }
+
         sl, err := jmp.ParseBytes(data)
         log.PanicIf(err)
 
-        rootIfd, rawExif, err := sl.Exif()
-        log.PanicIf(err)
+        mc.Media = sl
 
-        mc = &MediaContext{
-            MediaType: JpegMediaType,
-            RootIfd: rootIfd,
-            RawExif: rawExif,
-            Media: sl,
+        rootIfd, rawExif, err := sl.Exif()
+        if err != nil {
+            if log.Is(err, jpegstructure.ErrNoExif) == true {
+                return mc, nil
+            } else {
+                log.Panic(err)
+            }
         }
+
+        mc.RootIfd = rootIfd
+        mc.RawExif = rawExif
     } else if mt == PngMediaType {
+        mc = &MediaContext{
+            MediaType: PngMediaType,
+            RootIfd: nil,
+            RawExif: nil,
+            Media: nil,
+        }
+
         cs, err := pmp.ParseBytes(data)
         log.PanicIf(err)
 
-        rootIfd, rawExif, err := cs.Exif()
-        log.PanicIf(err)
+        mc.Media = cs
 
-        mc = &MediaContext{
-            MediaType: PngMediaType,
-            RootIfd: rootIfd,
-            RawExif: rawExif,
-            Media: cs,
+        rootIfd, rawExif, err := cs.Exif()
+        if err != nil {
+            if log.Is(err, pngstructure.ErrNoExif) == true {
+                return mc, nil
+            } else {
+                log.Panic(err)
+            }
         }
+
+        mc.RootIfd = rootIfd
+        mc.RawExif = rawExif
     } else if mt == OtherMediaType {
         rawExif, err := exif.SearchAndExtractExif(data)
-        log.PanicIf(err)
+        if err != nil {
+            if log.Is(err, exif.ErrNoExif) == true {
+                log.Panic(ErrNoExif)
+            } else {
+                log.Panic(err)
+            }
+        }
 
         _, index, err := exif.Collect(rawExif)
         log.PanicIf(err)
