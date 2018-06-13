@@ -37,7 +37,7 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 
     if specificIfdDesignation != "" {
         ifd, err = exif.FindIfdFromRootIfd(ifd, specificIfdDesignation)
-        log.Panic(err)
+        log.PanicIf(err)
 
         // If we're displaying a particular IFD, don't display any siblings.
         ifd.NextIfd = nil

@@ -52,6 +52,13 @@ var (
 )
 
 func main() {
+    defer func() {
+        if state := recover(); state != nil {
+            err := log.Wrap(state.(error))
+            log.PrintError(err)
+        }
+    }()
+
     p := flags.NewParser(arguments, flags.Default)
 
     _, err := p.Parse()
