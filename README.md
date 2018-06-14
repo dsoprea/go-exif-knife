@@ -90,12 +90,14 @@ $ ./go-exif-knife read --filepath image.jpg
 ```
 
 
-#### Print Tags in All IFDs With Name
+#### Print Specific Tags in All IFDs Using Name
 
 ```
 $ ./go-exif-knife read --filepath image.jpg --tag Model
 Model: SM-N920T
 ```
+
+"--tag" can be provided multiple times.
 
 
 #### Print Tag With Name and IFD
@@ -104,6 +106,8 @@ Model: SM-N920T
 $ ./go-exif-knife read --filepath "assets/image.jpg" --tag Model --ifd ifd0
 Model: Canon EOS 5D Mark III
 ```
+
+"--tag" can be provided multiple times.
 
 
 #### Print All Tags in IFD
@@ -193,6 +197,8 @@ $ ./go-exif-knife read --filepath image.jpg --ifd gps --json
 $ ./go-exif-knife read --filepath image.jpg --tag Model --just-values
 SM-N920T
 ```
+
+"--tag" can be provided multiple times.
 
 
 ### GPS
