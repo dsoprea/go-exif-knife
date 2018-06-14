@@ -57,16 +57,9 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 
         fmt.Println(string(data))
     } else {
-        if len(specificTags) > 0 {
+        if len(included) > 0 {
             ti := exif.NewTagIndex()
-
-            for _, tag := range ifd.Entries {
-                // Skip child IFDs. These wouldn't make sense to anyone who
-                // doesn't understand EXIF struture.
-                if tag.ChildIfdName != "" {
-                    continue
-                }
-
+            cb := func(ifd *exif.Ifd, tag *exif.IfdTagEntry) error {
                 it, err := ti.Get(ifd.Identity(), tag.TagId)
 
                 tagName := ""
@@ -76,12 +69,12 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 
                 // Unknown tag.
                 if tagName == "" {
-                    continue
+                    return nil
                 }
 
                 i := included.Search(tagName)
                 if i >= len(included) || included[i] != tagName {
-                    continue
+                    return nil
                 }
 
                 value, err := ifd.TagValue(tag)
@@ -135,7 +128,12 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
                 }
 
                 fmt.Printf("\n")
+
+                return nil
             }
+
+            err = ifd.EnumerateTagsRecursively(cb)
+            log.PanicIf(err)
         } else {
             ifd.PrintTagTree(true)
         }
