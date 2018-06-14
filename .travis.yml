@@ -12,6 +12,7 @@ install:
 - go get github.com/mattn/goveralls
 - go get github.com/mitchellh/gox
 script:
+- go test -v github.com/dsoprea/go-exif/...
 - goveralls -v -service=travis-ci
 before_deploy:
 - gox -output "build/{{.Dir}}.{{.OS}}-{{.Arch}}" ./...
