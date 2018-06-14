@@ -1,5 +1,10 @@
+- Add write support for TIFF.
+- Add JSON-import support.
 - Add support for dropping tags.
 - Add support for dropping all EXIF.
 - Print coordinates in degree notation.
-- Add thumbnail.
+- Be able to set thumbnail.
   - Need to validate/convert compression.
+
+- Be able to set GPS using simple decimals.
+- Add obviously-missing unit-tests for different command-line variations.
