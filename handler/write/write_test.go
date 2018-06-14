@@ -1,100 +1,94 @@
 package exifknifewrite
 
 import (
-    "testing"
-    "path"
-    "os"
+	"os"
+	"path"
+	"testing"
 
-    "io/ioutil"
+	"io/ioutil"
 
-    "github.com/dsoprea/go-logging"
-    "github.com/dsoprea/go-jpeg-image-structure"
+	"github.com/dsoprea/go-jpeg-image-structure"
+	"github.com/dsoprea/go-logging"
 )
 
 func TestExifWrite_Write_Noop(t *testing.T) {
-    imageFilepath := path.Join(assetsPath, "gps.jpg")
+	imageFilepath := path.Join(assetsPath, "gps.jpg")
 
+	// Write out without changes.
 
-    // Write out without changes.
+	ew := new(ExifWrite)
 
-    ew := new(ExifWrite)
+	f, err := ioutil.TempFile("", "go-exif-knife--write_test")
+	log.PanicIf(err)
 
-    f, err := ioutil.TempFile("", "go-exif-knife--write_test")
-    log.PanicIf(err)
+	outputFilepath := f.Name()
 
-    outputFilepath := f.Name()
+	defer os.Remove(outputFilepath)
 
-    defer os.Remove(outputFilepath)
+	setTagPhrases := make([]string, 0)
+	err = ew.Write(imageFilepath, setTagPhrases, outputFilepath)
+	log.PanicIf(err)
 
-    setTagPhrases := make([]string, 0)
-    err = ew.Write(imageFilepath, setTagPhrases, outputFilepath)
-    log.PanicIf(err)
+	// Parse.
 
+	jmp := jpegstructure.NewJpegMediaParser()
 
-    // Parse.
+	sl, err := jmp.ParseFile(outputFilepath)
+	log.PanicIf(err)
 
-    jmp := jpegstructure.NewJpegMediaParser()
+	rootIfd, _, err := sl.Exif()
+	log.PanicIf(err)
 
-    sl, err := jmp.ParseFile(outputFilepath)
-    log.PanicIf(err)
+	// Verify initial value.
 
-    rootIfd, _, err := sl.Exif()
-    log.PanicIf(err)
+	results, err := rootIfd.FindTagWithName("Software")
+	log.PanicIf(err)
 
+	if len(results) != 1 {
+		t.Fatalf("'Software' tag not correctly found (1): %v", results)
+	}
 
-    // Verify initial value.
+	value, err := rootIfd.TagValue(results[0])
+	log.PanicIf(err)
 
-    results, err := rootIfd.FindTagWithName("Software")
-    log.PanicIf(err)
+	valueString := value.(string)
 
-    if len(results) != 1 {
-        t.Fatalf("'Software' tag not correctly found (1): %v", results)
-    }
+	if valueString != "GIMP 2.8.20" {
+		t.Fatalf("Initial 'Software' tag value not correct: (%d) [%v]", len(valueString), valueString)
+	}
 
-    value, err := rootIfd.TagValue(results[0])
-    log.PanicIf(err)
+	// Write with an update.
 
-    valueString := value.(string)
+	setTagPhrases = []string{
+		"ifd0,Software,abc",
+	}
 
-    if valueString != "GIMP 2.8.20" {
-        t.Fatalf("Initial 'Software' tag value not correct: (%d) [%v]", len(valueString), valueString)
-    }
+	err = ew.Write(imageFilepath, setTagPhrases, outputFilepath)
+	log.PanicIf(err)
 
+	// Parse.
 
-    // Write with an update.
+	sl, err = jmp.ParseFile(outputFilepath)
+	log.PanicIf(err)
 
-    setTagPhrases = []string {
-        "ifd0,Software,abc",
-    }
+	rootIfd, _, err = sl.Exif()
+	log.PanicIf(err)
 
-    err = ew.Write(imageFilepath, setTagPhrases, outputFilepath)
-    log.PanicIf(err)
+	// Verify initial value.
 
+	results, err = rootIfd.FindTagWithName("Software")
+	log.PanicIf(err)
 
-    // Parse.
+	if len(results) != 1 {
+		t.Fatalf("'Software' tag not correctly found (2): %v", results)
+	}
 
-    sl, err = jmp.ParseFile(outputFilepath)
-    log.PanicIf(err)
+	value, err = rootIfd.TagValue(results[0])
+	log.PanicIf(err)
 
-    rootIfd, _, err = sl.Exif()
-    log.PanicIf(err)
+	valueString = value.(string)
 
-
-    // Verify initial value.
-
-    results, err = rootIfd.FindTagWithName("Software")
-    log.PanicIf(err)
-
-    if len(results) != 1 {
-        t.Fatalf("'Software' tag not correctly found (2): %v", results)
-    }
-
-    value, err = rootIfd.TagValue(results[0])
-    log.PanicIf(err)
-
-    valueString = value.(string)
-
-    if valueString != "abc" {
-        t.Fatalf("Updated 'Software' tag value not correct: (%d) [%v]", len(valueString), valueString)
-    }
+	if valueString != "abc" {
+		t.Fatalf("Updated 'Software' tag value not correct: (%d) [%v]", len(valueString), valueString)
+	}
 }

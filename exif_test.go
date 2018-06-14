@@ -1,94 +1,88 @@
 package exifknife
 
 import (
-    "testing"
-    "path"
-    "reflect"
+	"path"
+	"reflect"
+	"testing"
 
-    "github.com/dsoprea/go-logging"
-    "github.com/dsoprea/go-exif"
+	"github.com/dsoprea/go-exif"
+	"github.com/dsoprea/go-logging"
 )
 
 func TestGetExif_Jpeg(t *testing.T) {
-    filepath := path.Join(assetsPath, "image.jpg")
+	filepath := path.Join(assetsPath, "image.jpg")
 
-    mc, err := GetExif(filepath)
-    log.PanicIf(err)
+	mc, err := GetExif(filepath)
+	log.PanicIf(err)
 
-    if mc.MediaType != "jpeg" {
-        t.Fatalf("media-type not 'jpeg'")
-    }
+	if mc.MediaType != "jpeg" {
+		t.Fatalf("media-type not 'jpeg'")
+	}
 
+	ti := exif.NewTagIndex()
 
-    ti := exif.NewTagIndex()
+	it, err := ti.GetWithName(exif.RootIi, "Model")
+	log.PanicIf(err)
 
-    it, err := ti.GetWithName(exif.RootIi, "Model")
-    log.PanicIf(err)
+	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
 
+	value, err := mc.RootIfd.TagValue(ite)
+	log.PanicIf(err)
 
-    ite := mc.RootIfd.EntriesByTagId[it.Id][0]
-
-    value, err := mc.RootIfd.TagValue(ite)
-    log.PanicIf(err)
-
-    expected := "Canon EOS 5D Mark III"
-    if value.(string) != expected {
-        t.Fatalf("model not valid")
-    }
+	expected := "Canon EOS 5D Mark III"
+	if value.(string) != expected {
+		t.Fatalf("model not valid")
+	}
 }
 
 func TestGetExif_Png(t *testing.T) {
-    filepath := path.Join(assetsPath, "image.png")
+	filepath := path.Join(assetsPath, "image.png")
 
-    mc, err := GetExif(filepath)
-    log.PanicIf(err)
+	mc, err := GetExif(filepath)
+	log.PanicIf(err)
 
-    if mc.MediaType != "png" {
-        t.Fatalf("media-type not 'png'")
-    }
+	if mc.MediaType != "png" {
+		t.Fatalf("media-type not 'png'")
+	}
 
+	ti := exif.NewTagIndex()
 
-    ti := exif.NewTagIndex()
+	it, err := ti.GetWithName(exif.RootIi, "ImageWidth")
+	log.PanicIf(err)
 
-    it, err := ti.GetWithName(exif.RootIi, "ImageWidth")
-    log.PanicIf(err)
+	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
 
+	value, err := mc.RootIfd.TagValue(ite)
+	log.PanicIf(err)
 
-    ite := mc.RootIfd.EntriesByTagId[it.Id][0]
-
-    value, err := mc.RootIfd.TagValue(ite)
-    log.PanicIf(err)
-
-    expected := []uint32 { 11 }
-    if reflect.DeepEqual(value, expected) != true {
-        t.Fatalf("image-width not valid")
-    }
+	expected := []uint32{11}
+	if reflect.DeepEqual(value, expected) != true {
+		t.Fatalf("image-width not valid")
+	}
 }
 
 func TestGetExif_Other(t *testing.T) {
-    filepath := path.Join(assetsPath, "image.tiff")
+	filepath := path.Join(assetsPath, "image.tiff")
 
-    mc, err := GetExif(filepath)
-    log.PanicIf(err)
+	mc, err := GetExif(filepath)
+	log.PanicIf(err)
 
-    if mc.MediaType != "other" {
-        t.Fatalf("media-type not 'other'")
-    }
+	if mc.MediaType != "other" {
+		t.Fatalf("media-type not 'other'")
+	}
 
+	ti := exif.NewTagIndex()
 
-    ti := exif.NewTagIndex()
+	it, err := ti.GetWithName(exif.RootIi, "Artist")
+	log.PanicIf(err)
 
-    it, err := ti.GetWithName(exif.RootIi, "Artist")
-    log.PanicIf(err)
+	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
 
+	value, err := mc.RootIfd.TagValue(ite)
+	log.PanicIf(err)
 
-    ite := mc.RootIfd.EntriesByTagId[it.Id][0]
-
-    value, err := mc.RootIfd.TagValue(ite)
-    log.PanicIf(err)
-
-    expected := "Jean Cornillon"
-    if value.(string) != expected {
-        t.Fatalf("artist not correct")
-    }
+	expected := "Jean Cornillon"
+	if value.(string) != expected {
+		t.Fatalf("artist not correct")
+	}
 }

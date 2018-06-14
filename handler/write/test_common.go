@@ -1,21 +1,21 @@
 package exifknifewrite
 
 import (
-    "os"
-    "path"
+	"os"
+	"path"
 
-    "github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging"
 )
 
 var (
-    assetsPath = ""
+	assetsPath = ""
 )
 
 func init() {
-    goPath := os.Getenv("GOPATH")
-    if goPath == "" {
-        log.Panicf("GOPATH is empty")
-    }
+	goPath := os.Getenv("GOPATH")
+	if goPath == "" {
+		log.Panicf("GOPATH is empty")
+	}
 
-    assetsPath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "assets")
+	assetsPath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "assets")
 }

@@ -1,97 +1,92 @@
 package main
 
 import (
-    "testing"
-    "path"
-    "os"
-    "reflect"
+	"os"
+	"path"
+	"reflect"
+	"testing"
 
-    "io/ioutil"
+	"io/ioutil"
 
-    "github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging"
 
-    "github.com/dsoprea/go-exif-knife"
+	"github.com/dsoprea/go-exif-knife"
 )
 
 var (
-    appFilepath = ""
+	appFilepath = ""
 )
 
 func TestMain_Read(t *testing.T) {
-    imageFilepath := path.Join(assetsPath, "gps.jpg")
+	imageFilepath := path.Join(assetsPath, "gps.jpg")
 
+	// Check original value.
 
-    // Check original value.
+	exifInfo := exifknife.CommandGetExif(imageFilepath)
 
-    exifInfo := exifknife.CommandGetExif(imageFilepath)
-
-    if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
-        t.Fatalf("'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
-    }
+	if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
+		t.Fatalf("'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
+	}
 }
 
 func TestMain_Write(t *testing.T) {
-    imageFilepath := path.Join(assetsPath, "gps.jpg")
+	imageFilepath := path.Join(assetsPath, "gps.jpg")
 
+	// Check original value.
 
-    // Check original value.
+	exifInfo := exifknife.CommandGetExif(imageFilepath)
 
-    exifInfo := exifknife.CommandGetExif(imageFilepath)
+	if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
+		t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
+	}
 
-    if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
-        t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
-    }
+	// Configure output file.
 
+	f, err := ioutil.TempFile("", "go-exif-knife--write_test")
+	log.PanicIf(err)
 
-    // Configure output file.
+	outputFilepath := f.Name()
 
-    f, err := ioutil.TempFile("", "go-exif-knife--write_test")
-    log.PanicIf(err)
+	defer os.Remove(outputFilepath)
 
-    outputFilepath := f.Name()
+	// Update the EXIF information.
 
-    defer os.Remove(outputFilepath)
+	parts := []string{
+		"go", "run", appFilepath, "write",
+		"--filepath", imageFilepath,
+		"--output-filepath", outputFilepath,
+		"--set-tag", "ifd0,Software,abc",
+	}
 
+	output, err := exifknife.RunCommand(parts...)
+	log.PanicIf(err)
 
-    // Update the EXIF information.
+	if len(output) != 0 {
+		t.Fatalf("Expected no output:\n%s", string(output))
+	}
 
-    parts := []string {
-        "go", "run", appFilepath, "write",
-        "--filepath", imageFilepath,
-        "--output-filepath", outputFilepath,
-        "--set-tag", "ifd0,Software,abc",
-    }
+	// Check updated value.
 
-    output, err := exifknife.RunCommand(parts...)
-    log.PanicIf(err)
+	exifInfo = exifknife.CommandGetExif(outputFilepath)
 
-    if len(output) != 0 {
-        t.Fatalf("Expected no output:\n%s", string(output))
-    }
-
-
-    // Check updated value.
-
-    exifInfo = exifknife.CommandGetExif(outputFilepath)
-
-    if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "abc") != true {
-        t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
-    }
+	if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "abc") != true {
+		t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
+	}
 }
 
 func TestMain_Gps(t *testing.T) {
-    imageFilepath := path.Join(assetsPath, "gps.jpg")
+	imageFilepath := path.Join(assetsPath, "gps.jpg")
 
-    parts := []string {
-        "go", "run", appFilepath, "gps",
-        "--filepath", imageFilepath,
-        "--json",
-    }
+	parts := []string{
+		"go", "run", appFilepath, "gps",
+		"--filepath", imageFilepath,
+		"--json",
+	}
 
-    output, err := exifknife.RunCommand(parts...)
-    log.PanicIf(err)
+	output, err := exifknife.RunCommand(parts...)
+	log.PanicIf(err)
 
-    expected := `{
+	expected := `{
     "Altitude": 0,
     "LatitudeDecimal": 26.586666666666666,
     "LongitudeDecimal": -80.05361111111111,
@@ -100,13 +95,13 @@ func TestMain_Gps(t *testing.T) {
 }
 `
 
-    if string(output) != expected {
-        t.Fatalf("GPS result not correct.")
-    }
+	if string(output) != expected {
+		t.Fatalf("GPS result not correct.")
+	}
 }
 
 func init() {
-    goPath := os.Getenv("GOPATH")
+	goPath := os.Getenv("GOPATH")
 
-    appFilepath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "command", "go-exif-knife", "main.go")
+	appFilepath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "command", "go-exif-knife", "main.go")
 }

@@ -1,65 +1,65 @@
 package exifknife
 
 import (
-    "os"
-    "path"
-    "bytes"
-    "fmt"
+	"bytes"
+	"fmt"
+	"os"
+	"path"
 
-    "encoding/json"
+	"encoding/json"
 
-    "os/exec"
+	"os/exec"
 
-    "github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging"
 )
 
 var (
-    assetsPath = ""
-    appFilepath = ""
+	assetsPath  = ""
+	appFilepath = ""
 )
 
 func CommandGetExif(filepath string) (exifInfo map[string]map[string]interface{}) {
-    parts := []string {
-        "go", "run", appFilepath, "read",
-        "--filepath", filepath,
-        "--json",
-    }
+	parts := []string{
+		"go", "run", appFilepath, "read",
+		"--filepath", filepath,
+		"--json",
+	}
 
-    output, err := RunCommand(parts...)
-    log.PanicIf(err)
+	output, err := RunCommand(parts...)
+	log.PanicIf(err)
 
-    exifInfo = make(map[string]map[string]interface{})
+	exifInfo = make(map[string]map[string]interface{})
 
-    err = json.Unmarshal(output, &exifInfo)
-    log.PanicIf(err)
+	err = json.Unmarshal(output, &exifInfo)
+	log.PanicIf(err)
 
-    return exifInfo
+	return exifInfo
 }
 
 func RunCommand(command_parts ...string) (output []byte, err error) {
-    cmd := exec.Command(command_parts[0], command_parts[1:]...)
+	cmd := exec.Command(command_parts[0], command_parts[1:]...)
 
-    b := new(bytes.Buffer)
-    cmd.Stdout = b
-    cmd.Stderr = b
+	b := new(bytes.Buffer)
+	cmd.Stdout = b
+	cmd.Stderr = b
 
-    err = cmd.Run()
-    raw := b.Bytes()
+	err = cmd.Run()
+	raw := b.Bytes()
 
-    if err != nil {
-        fmt.Printf(string(raw))
-        log.Panic(err)
-    }
+	if err != nil {
+		fmt.Printf(string(raw))
+		log.Panic(err)
+	}
 
-    return b.Bytes(), nil
+	return b.Bytes(), nil
 }
 
 func init() {
-    goPath := os.Getenv("GOPATH")
-    if goPath == "" {
-        log.Panicf("GOPATH is empty")
-    }
+	goPath := os.Getenv("GOPATH")
+	if goPath == "" {
+		log.Panicf("GOPATH is empty")
+	}
 
-    assetsPath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "assets")
-    appFilepath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "command", "go-exif-knife", "main.go")
+	assetsPath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "assets")
+	appFilepath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "command", "go-exif-knife", "main.go")
 }
