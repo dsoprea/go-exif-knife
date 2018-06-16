@@ -9,12 +9,6 @@ import (
 	"io/ioutil"
 
 	"github.com/dsoprea/go-logging"
-
-	"github.com/dsoprea/go-exif-knife"
-)
-
-var (
-	appFilepath = ""
 )
 
 func TestMain_Read(t *testing.T) {
@@ -22,7 +16,7 @@ func TestMain_Read(t *testing.T) {
 
 	// Check original value.
 
-	exifInfo := exifknife.CommandGetExif(imageFilepath)
+	exifInfo := CommandGetExif(imageFilepath)
 
 	if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
 		t.Fatalf("'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
@@ -34,7 +28,7 @@ func TestMain_Write(t *testing.T) {
 
 	// Check original value.
 
-	exifInfo := exifknife.CommandGetExif(imageFilepath)
+	exifInfo := CommandGetExif(imageFilepath)
 
 	if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
 		t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
@@ -58,7 +52,7 @@ func TestMain_Write(t *testing.T) {
 		"--set-tag", "ifd0,Software,abc",
 	}
 
-	output, err := exifknife.RunCommand(parts...)
+	output, err := RunCommand(parts...)
 	log.PanicIf(err)
 
 	if len(output) != 0 {
@@ -67,7 +61,7 @@ func TestMain_Write(t *testing.T) {
 
 	// Check updated value.
 
-	exifInfo = exifknife.CommandGetExif(outputFilepath)
+	exifInfo = CommandGetExif(outputFilepath)
 
 	if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "abc") != true {
 		t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
@@ -83,7 +77,7 @@ func TestMain_Gps(t *testing.T) {
 		"--json",
 	}
 
-	output, err := exifknife.RunCommand(parts...)
+	output, err := RunCommand(parts...)
 	log.PanicIf(err)
 
 	expected := `{
@@ -98,10 +92,4 @@ func TestMain_Gps(t *testing.T) {
 	if string(output) != expected {
 		t.Fatalf("GPS result not correct.")
 	}
-}
-
-func init() {
-	goPath := os.Getenv("GOPATH")
-
-	appFilepath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "command", "go-exif-knife", "main.go")
 }
