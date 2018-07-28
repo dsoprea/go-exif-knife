@@ -29,7 +29,8 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 		itevr := exif.NewIfdTagEntryValueResolver(mc.RawExif, mc.RootIfd.ByteOrder)
 		rootIb = exif.NewIfdBuilderFromExistingChain(mc.RootIfd, itevr)
 	} else {
-		rootIb = exif.NewIfdBuilder(exif.RootIi, binary.BigEndian)
+		ti := exif.NewTagIndex()
+		rootIb = exif.NewIfdBuilder(ti, exif.RootIi, binary.BigEndian)
 	}
 
 	ti := exif.NewTagIndex()

@@ -136,7 +136,9 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			}
 		}
 
-		_, index, err := exif.Collect(rawExif)
+		ti := exif.NewTagIndex()
+
+		_, index, err := exif.Collect(ti, rawExif)
 		log.PanicIf(err)
 
 		mc = &MediaContext{
