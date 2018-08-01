@@ -3,7 +3,6 @@ package exifkniferead
 import (
 	"fmt"
 	"sort"
-	"strings"
 
 	"encoding/json"
 
@@ -58,7 +57,7 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 		if len(included) > 0 {
 			ti := exif.NewTagIndex()
 			cb := func(ifd *exif.Ifd, tag *exif.IfdTagEntry) error {
-				it, err := ti.Get(ifd.Identity(), tag.TagId)
+				it, err := ti.Get(ifd.IfdPath, tag.TagId)
 
 				tagName := ""
 				if err == nil {
@@ -149,13 +148,11 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 
 	ti := exif.NewTagIndex()
 
+	ifdIndex := 0
 	for ifd != nil {
-		currentIfdDesignation := exif.IfdDesignation(ifd.Ii, ifd.Index)
-		currentIfdDesignation = strings.ToLower(currentIfdDesignation)
-
 		for _, tag := range ifd.Entries {
-			if tag.ChildIfdName != "" {
-				childIfd, err := ifd.ChildWithName(tag.ChildIfdName)
+			if tag.ChildIfdPath != "" {
+				childIfd, err := ifd.ChildWithIfdPath(tag.ChildIfdPath)
 				log.PanicIf(err)
 
 				err = er.exportIfd(childIfd, included, distilled)
@@ -164,7 +161,7 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				continue
 			}
 
-			it, err := ti.Get(ifd.Identity(), tag.TagId)
+			it, err := ti.Get(ifd.IfdPath, tag.TagId)
 
 			tagName := ""
 			if err == nil {
@@ -190,7 +187,7 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				}
 			}
 
-			ifdMap, found := distilled[currentIfdDesignation]
+			ifdMap, found := distilled[ifd.FqIfdPath]
 
 			if found == true {
 				ifdMap[tagName] = value
@@ -200,9 +197,10 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				}
 			}
 
-			distilled[currentIfdDesignation] = ifdMap
+			distilled[ifd.FqIfdPath] = ifdMap
 		}
 
+		ifdIndex++
 		ifd = ifd.NextIfd
 	}
 

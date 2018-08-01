@@ -22,8 +22,10 @@ type readParameters struct {
 }
 
 type writeParameters struct {
-	Filepath       string   `short:"f" long:"filepath" required:"true" description:"File-path ('-' for STDIN)"`
-	SetTags        []string `short:"s" long:"set-tag" description:"Set tag (can be provided one or more times). Must look like '<ifd:ifd0,ifd1,exif,iop,gps>,<name>,<value>'."`
+	Filepath string `short:"f" long:"filepath" required:"true" description:"File-path ('-' for STDIN)"`
+
+	// TODO(dustin): !! Provide a way to list the registered IFDs from the command-line and remove them from the help.
+	SetTags        []string `short:"s" long:"set-tag" description:"Set tag (can be provided one or more times). Must look like '<ifd path:IFD,IFD0,IFD1,IFD/Exif,IFD/Exif/Iop,IFD/GPSInfo,etc..>,<name>,<value>'."`
 	OutputFilepath string   `short:"o" long:"output-filepath" required:"true" description:"Output file-path ('-' for STDIN)"`
 }
 

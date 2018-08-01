@@ -25,32 +25,30 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 	log.PanicIf(err)
 
 	var rootIb *exif.IfdBuilder
+
+	// TODO(dustin): !! Why wouldn't this ever be true?
 	if mc.RootIfd != nil {
 		itevr := exif.NewIfdTagEntryValueResolver(mc.RawExif, mc.RootIfd.ByteOrder)
 		rootIb = exif.NewIfdBuilderFromExistingChain(mc.RootIfd, itevr)
 	} else {
+		im := exif.NewIfdMappingWithStandard()
 		ti := exif.NewTagIndex()
-		rootIb = exif.NewIfdBuilder(ti, exif.RootIi, binary.BigEndian)
+
+		rootIb = exif.NewIfdBuilder(im, ti, exif.IfdPathStandard, binary.BigEndian)
 	}
 
 	ti := exif.NewTagIndex()
 
 	for _, fieldSpec := range setTagPhrases {
-		// Split something like "<IFD name>,tag name,value".
+		// Split something like "<IFD path>,tag name,value".
 		parts := strings.SplitN(fieldSpec, ",", 3)
 
-		ifdDesignation := parts[0]
+		ifdPath := parts[0]
 		tagName := parts[1]
 		valueString := parts[2]
 
-		// Validates the IFD designation.
-		ini, found := exif.IfdDesignations[ifdDesignation]
-		if found == false {
-			log.Panicf("IFD designation is not valid: [%s]", ifdDesignation)
-		}
-
 		// Validates the tag.
-		it, err := ti.GetWithName(ini.Ii, tagName)
+		it, err := ti.GetWithName(ifdPath, tagName)
 		log.PanicIf(err)
 
 		// Ensure we don't have to deal with undefined-type tags at this point in time.
@@ -64,7 +62,8 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 		value, err := tt.FromString(valueString)
 		log.PanicIf(err)
 
-		childIb, err := exif.GetOrCreateIbFromRootIb(rootIb, ifdDesignation)
+		childIb, err := exif.GetOrCreateIbFromRootIb(rootIb, ifdPath)
+		log.PanicIf(err)
 
 		err = childIb.SetStandardWithName(tagName, value)
 		log.PanicIf(err)

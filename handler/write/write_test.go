@@ -12,6 +12,13 @@ import (
 )
 
 func TestExifWrite_Write_Noop(t *testing.T) {
+	defer func() {
+		if state := recover(); state != nil {
+			err := log.Wrap(state.(error))
+			log.PrintError(err)
+		}
+	}()
+
 	imageFilepath := path.Join(assetsPath, "gps.jpg")
 
 	// Write out without changes.
@@ -60,7 +67,7 @@ func TestExifWrite_Write_Noop(t *testing.T) {
 	// Write with an update.
 
 	setTagPhrases = []string{
-		"ifd0,Software,abc",
+		"IFD,Software,abc",
 	}
 
 	err = ew.Write(imageFilepath, setTagPhrases, outputFilepath)

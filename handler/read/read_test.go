@@ -43,7 +43,7 @@ func TestExifRead_Read_SpecificIfd(t *testing.T) {
 	er := new(ExifRead)
 
 	justTry := false
-	specificIfdDesignation := "ifd0"
+	specificIfdDesignation := "IFD0"
 	specificTags := []string{}
 	justPrintValues := false
 	printAsJson := false
@@ -88,7 +88,7 @@ func TestExifRead_Read_SpecificIfdAndSpecificTags(t *testing.T) {
 	er := new(ExifRead)
 
 	justTry := false
-	specificIfdDesignation := "ifd0"
+	specificIfdDesignation := "IFD"
 	specificTags := []string{"ResolutionUnit"}
 	justPrintValues := false
 	printAsJson := false

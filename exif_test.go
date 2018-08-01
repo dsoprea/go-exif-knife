@@ -21,7 +21,7 @@ func TestGetExif_Jpeg(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exif.RootIi, "Model")
+	it, err := ti.GetWithName(exif.IfdPathStandard, "Model")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
@@ -47,7 +47,7 @@ func TestGetExif_Png(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exif.RootIi, "ImageWidth")
+	it, err := ti.GetWithName(exif.IfdPathStandard, "ImageWidth")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
@@ -73,7 +73,7 @@ func TestGetExif_Other(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exif.RootIi, "Artist")
+	it, err := ti.GetWithName(exif.IfdPathStandard, "Artist")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]

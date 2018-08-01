@@ -34,8 +34,8 @@ func TestMain_Read(t *testing.T) {
 
 	exifInfo := CommandGetExif(imageFilepath)
 
-	if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
-		t.Fatalf("'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
+	if reflect.DeepEqual(exifInfo["IFD"]["Software"], "GIMP 2.8.20") != true {
+		t.Fatalf("'Software' value not correct: %v", exifInfo["IFD"]["Software"])
 	}
 }
 
@@ -44,17 +44,27 @@ func TestMain_Read_Text(t *testing.T) {
 
 	// Check original value.
 
-	exifRaw := CommandGetExifText(imageFilepath, "--ifd", "ifd1")
+	exifRaw := CommandGetExifText(imageFilepath, "--ifd", "IFD1")
 
 	expected :=
-		` IFD: Ifd<ID=(3) PARENT-IFD=[] IFD=[IFD] INDEX=(1) COUNT=(4) OFF=(0x039e) CHILDREN=(0) PARENT=(0x0000) NEXT-IFD=(0x0000)>
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0103) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[Compression] VALUE=[[6]]
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x011a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[XResolution] VALUE=[[{72 1}]]
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x011b) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[YResolution] VALUE=[[{72 1}]]
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0128) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ResolutionUnit] VALUE=[[2]]
+		` IFD: Ifd<ID=(3) IFD-PATH=[IFD] INDEX=(1) COUNT=(4) OFF=(0x039e) CHILDREN=(0) PARENT=(0x0000) NEXT-IFD=(0x0000)>
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x0103) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[Compression] VALUE=[[6]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[XResolution] VALUE=[[{72 1}]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011b) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[YResolution] VALUE=[[{72 1}]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x0128) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ResolutionUnit] VALUE=[[2]]
 `
 
 	if exifRaw != expected {
+		fmt.Printf("ACTUAL:\n")
+		fmt.Printf("\n")
+		fmt.Println(exifRaw)
+		fmt.Printf("\n")
+
+		fmt.Printf("EXPECTED:\n")
+		fmt.Printf("\n")
+		fmt.Println(expected)
+		fmt.Printf("\n")
+
 		t.Fatalf("IFD-specific read not correct")
 	}
 }
@@ -64,17 +74,27 @@ func TestMain_Read_SpecificIfd(t *testing.T) {
 
 	// Check original value.
 
-	exifRaw := CommandGetExifText(imageFilepath, "--ifd", "ifd1")
+	exifRaw := CommandGetExifText(imageFilepath, "--ifd", "IFD1")
 
 	expected :=
-		` IFD: Ifd<ID=(3) PARENT-IFD=[] IFD=[IFD] INDEX=(1) COUNT=(4) OFF=(0x039e) CHILDREN=(0) PARENT=(0x0000) NEXT-IFD=(0x0000)>
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0103) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[Compression] VALUE=[[6]]
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x011a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[XResolution] VALUE=[[{72 1}]]
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x011b) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[YResolution] VALUE=[[{72 1}]]
- - TAG: IfdTagEntry<TAG-IFD=[] TAG-ID=(0x0128) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ResolutionUnit] VALUE=[[2]]
+		` IFD: Ifd<ID=(3) IFD-PATH=[IFD] INDEX=(1) COUNT=(4) OFF=(0x039e) CHILDREN=(0) PARENT=(0x0000) NEXT-IFD=(0x0000)>
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x0103) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[Compression] VALUE=[[6]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[XResolution] VALUE=[[{72 1}]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011b) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[YResolution] VALUE=[[{72 1}]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x0128) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ResolutionUnit] VALUE=[[2]]
 `
 
 	if exifRaw != expected {
+		fmt.Printf("ACTUAL:\n")
+		fmt.Printf("\n")
+		fmt.Println(exifRaw)
+		fmt.Printf("\n")
+
+		fmt.Printf("EXPECTED:\n")
+		fmt.Printf("\n")
+		fmt.Println(expected)
+		fmt.Printf("\n")
+
 		t.Fatalf("IFD-specific read not correct")
 	}
 }
@@ -88,12 +108,12 @@ func TestMain_Read_SpecificTag(t *testing.T) {
 
 	expected :=
 		`{
-    "ifd0": {
+    "IFD": {
         "ResolutionUnit": [
             2
         ]
     },
-    "ifd1": {
+    "IFD1": {
         "ResolutionUnit": [
             2
         ]
@@ -114,11 +134,11 @@ func TestMain_Read_SpecificIfdAndSpecificTag(t *testing.T) {
 
 	// Check original value.
 
-	exifRaw := CommandGetExifText(imageFilepath, "--ifd", "ifd1", "--tag", "ResolutionUnit", "--json")
+	exifRaw := CommandGetExifText(imageFilepath, "--ifd", "IFD1", "--tag", "ResolutionUnit", "--json")
 
 	expected :=
 		`{
-    "ifd1": {
+    "IFD1": {
         "ResolutionUnit": [
             2
         ]
@@ -139,7 +159,7 @@ func TestMain_Read_JustValues(t *testing.T) {
 
 	// Check original value.
 
-	value := CommandGetExifText(imageFilepath, "--ifd", "ifd1", "--tag", "ResolutionUnit", "--just-values")
+	value := CommandGetExifText(imageFilepath, "--ifd", "IFD1", "--tag", "ResolutionUnit", "--just-values")
 
 	expected :=
 		`2
@@ -160,8 +180,8 @@ func TestMain_Write(t *testing.T) {
 
 	exifInfo := CommandGetExif(imageFilepath)
 
-	if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "GIMP 2.8.20") != true {
-		t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
+	if reflect.DeepEqual(exifInfo["IFD"]["Software"], "GIMP 2.8.20") != true {
+		t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["IFD"]["Software"])
 	}
 
 	// Configure output file.
@@ -179,7 +199,7 @@ func TestMain_Write(t *testing.T) {
 		"go", "run", appFilepath, "write",
 		"--filepath", imageFilepath,
 		"--output-filepath", outputFilepath,
-		"--set-tag", "ifd0,Software,abc",
+		"--set-tag", "IFD,Software,abc",
 	}
 
 	output, err := RunCommand(parts...)
@@ -193,8 +213,8 @@ func TestMain_Write(t *testing.T) {
 
 	exifInfo = CommandGetExif(outputFilepath)
 
-	if reflect.DeepEqual(exifInfo["ifd0"]["Software"], "abc") != true {
-		t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["ifd0"]["Software"])
+	if reflect.DeepEqual(exifInfo["IFD"]["Software"], "abc") != true {
+		t.Fatalf("Updated 'Software' value not correct: %v", exifInfo["IFD"]["Software"])
 	}
 }
 

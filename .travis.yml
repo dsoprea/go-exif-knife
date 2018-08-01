@@ -1,21 +1,19 @@
 language: go
 go:
-- master
-- stable
-- '1.10'
-- '1.9'
-- '1.8'
-- '1.7'
-- '1.6'
+  - master
+  - stable
+  - '1.10'
+  - '1.9'
+  - '1.8'
 install:
-- go get -t ./...
-- go get github.com/mattn/goveralls
-- go get github.com/mitchellh/gox
+  - go get -t ./...
+  - go get github.com/mattn/goveralls
+  - go get github.com/mitchellh/gox
 script:
-- go test -v github.com/dsoprea/go-exif/...
-- goveralls -v -service=travis-ci
+  - go test -v github.com/dsoprea/go-exif/...
+  - goveralls -v -service=travis-ci
 before_deploy:
-- gox -output "build/{{.Dir}}.{{.OS}}-{{.Arch}}" ./...
+  - gox -output "build/{{.Dir}}.{{.OS}}-{{.Arch}}" ./...
 deploy:
   skip_cleanup: true
   provider: releases
