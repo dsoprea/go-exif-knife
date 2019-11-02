@@ -93,7 +93,7 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 
 		rootIfd, rawExif, err := sl.Exif()
 		if err != nil {
-			if log.Is(err, jpegstructure.ErrNoExif) == true {
+			if log.Is(err, exif.ErrNoExif) == true {
 				return mc, nil
 			} else {
 				log.Panic(err)
@@ -190,7 +190,7 @@ func SetExif(mc *MediaContext, imageFilepath string, ib *exif.IfdBuilder) (err e
 
 		defer f.Close()
 
-		err = cs.Write(f)
+		err = cs.WriteTo(f)
 		log.PanicIf(err)
 	} else {
 		log.Panicf("media-type not handled for writing; this shouldn't happen")
