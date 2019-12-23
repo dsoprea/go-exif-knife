@@ -2,6 +2,7 @@ package exifknife
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 
@@ -29,6 +30,11 @@ type MediaContext struct {
 	RootIfd   *exif.Ifd
 	RawExif   []byte
 	Media     interface{}
+}
+
+func (mc MediaContext) String() string {
+	hasRootIfd := mc.RootIfd != nil
+	return fmt.Sprintf("MediaContext<MEDIA-TYPE=[%s] HAS-ROOT-IFD=[%v] EXIF-LEN=(%d)>", mc.MediaType, hasRootIfd, len(mc.RawExif))
 }
 
 func GetExif(imageFilepath string) (mc *MediaContext, err error) {

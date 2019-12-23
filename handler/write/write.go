@@ -26,11 +26,14 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 
 	var rootIb *exif.IfdBuilder
 
-	// TODO(dustin): !! Why wouldn't this ever be true?
 	if mc.RootIfd != nil {
+		// There's EXIF data.
+
 		itevr := exif.NewIfdTagEntryValueResolver(mc.RawExif, mc.RootIfd.ByteOrder)
 		rootIb = exif.NewIfdBuilderFromExistingChain(mc.RootIfd, itevr)
 	} else {
+		// There's no EXIF data. Add it.
+
 		im := exif.NewIfdMappingWithStandard()
 		ti := exif.NewTagIndex()
 
