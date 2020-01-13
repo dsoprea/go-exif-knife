@@ -55,7 +55,7 @@ func TestExifWrite_Write_Noop(t *testing.T) {
 		t.Fatalf("'Software' tag not correctly found (1): %v", results)
 	}
 
-	value, err := rootIfd.TagValue(results[0])
+	value, err := results[0].Value()
 	log.PanicIf(err)
 
 	valueString := value.(string)
@@ -90,7 +90,7 @@ func TestExifWrite_Write_Noop(t *testing.T) {
 		t.Fatalf("'Software' tag not correctly found (2): %v", results)
 	}
 
-	value, err = rootIfd.TagValue(results[0])
+	value, err = results[0].Value()
 	log.PanicIf(err)
 
 	valueString = value.(string)

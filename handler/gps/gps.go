@@ -6,7 +6,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/dsoprea/go-exif"
+	"github.com/dsoprea/go-exif/v2/common"
 	"github.com/dsoprea/go-logging"
 
 	"github.com/dsoprea/go-exif-knife"
@@ -25,7 +25,7 @@ func (eg *ExifGps) ReadGps(imageFilepath string, includeS2Location, printAsJson 
 	mc, err := exifknife.GetExif(imageFilepath)
 	log.PanicIf(err)
 
-	gpsIfd, err := mc.RootIfd.ChildWithIfdPath(exif.IfdPathStandardGps)
+	gpsIfd, err := mc.RootIfd.ChildWithIfdPath(exifcommon.IfdPathStandardGps)
 	log.PanicIf(err)
 
 	gi, err := gpsIfd.GpsInfo()

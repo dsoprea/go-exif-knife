@@ -5,7 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/dsoprea/go-exif"
+	"github.com/dsoprea/go-exif/v2"
+	"github.com/dsoprea/go-exif/v2/common"
 	"github.com/dsoprea/go-logging"
 )
 
@@ -21,12 +22,12 @@ func TestGetExif_Jpeg(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exif.IfdPathStandard, "Model")
+	it, err := ti.GetWithName(exifcommon.IfdPathStandard, "Model")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
 
-	value, err := mc.RootIfd.TagValue(ite)
+	value, err := ite.Value()
 	log.PanicIf(err)
 
 	expected := "Canon EOS 5D Mark III"
@@ -47,12 +48,12 @@ func TestGetExif_Png(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exif.IfdPathStandard, "ImageWidth")
+	it, err := ti.GetWithName(exifcommon.IfdPathStandard, "ImageWidth")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
 
-	value, err := mc.RootIfd.TagValue(ite)
+	value, err := ite.Value()
 	log.PanicIf(err)
 
 	expected := []uint32{11}
@@ -62,6 +63,15 @@ func TestGetExif_Png(t *testing.T) {
 }
 
 func TestGetExif_Other(t *testing.T) {
+	defer func() {
+		if state := recover(); state != nil {
+			err := log.Wrap(state.(error))
+			log.PrintError(err)
+
+			t.Fatalf("Test failure.")
+		}
+	}()
+
 	filepath := path.Join(assetsPath, "image.tiff")
 
 	mc, err := GetExif(filepath)
@@ -73,12 +83,12 @@ func TestGetExif_Other(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exif.IfdPathStandard, "Artist")
+	it, err := ti.GetWithName(exifcommon.IfdPathStandard, "Artist")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
 
-	value, err := mc.RootIfd.TagValue(ite)
+	value, err := ite.Value()
 	log.PanicIf(err)
 
 	expected := "Jean Cornillon"

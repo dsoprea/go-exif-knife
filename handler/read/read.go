@@ -6,7 +6,8 @@ import (
 
 	"encoding/json"
 
-	"github.com/dsoprea/go-exif"
+	"github.com/dsoprea/go-exif/v2"
+	"github.com/dsoprea/go-exif/v2/common"
 	"github.com/dsoprea/go-logging"
 
 	"github.com/dsoprea/go-exif-knife"
@@ -57,7 +58,7 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 		if len(included) > 0 {
 			ti := exif.NewTagIndex()
 			cb := func(ifd *exif.Ifd, tag *exif.IfdTagEntry) error {
-				it, err := ti.Get(ifd.IfdPath, tag.TagId)
+				it, err := ti.Get(ifd.IfdPath, tag.TagId())
 
 				tagName := ""
 				if err == nil {
@@ -74,9 +75,9 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 					return nil
 				}
 
-				value, err := ifd.TagValue(tag)
+				value, err := tag.Value()
 				if err != nil {
-					if log.Is(err, exif.ErrUnhandledUnknownTypedTag) == true {
+					if log.Is(err, exifcommon.ErrUnhandledUndefinedTypedTag) == true {
 						value = "!UNPARSEABLE"
 					} else {
 						log.Panic(err)
@@ -108,13 +109,13 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 					for _, item := range list_ {
 						fmt.Printf("%d ", item)
 					}
-				case []exif.Rational:
-					list_ := value.([]exif.Rational)
+				case []exifcommon.Rational:
+					list_ := value.([]exifcommon.Rational)
 					for _, item := range list_ {
 						fmt.Printf("%d/%d ", item.Numerator, item.Denominator)
 					}
-				case []exif.SignedRational:
-					list_ := value.([]exif.SignedRational)
+				case []exifcommon.SignedRational:
+					list_ := value.([]exifcommon.SignedRational)
 					for _, item := range list_ {
 						fmt.Printf("%d/%d ", item.Numerator, item.Denominator)
 					}
@@ -151,8 +152,8 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 	ifdIndex := 0
 	for ifd != nil {
 		for _, tag := range ifd.Entries {
-			if tag.ChildIfdPath != "" {
-				childIfd, err := ifd.ChildWithIfdPath(tag.ChildIfdPath)
+			if tag.ChildIfdPath() != "" {
+				childIfd, err := ifd.ChildWithIfdPath(tag.ChildIfdPath())
 				log.PanicIf(err)
 
 				err = er.exportIfd(childIfd, included, distilled)
@@ -161,7 +162,7 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				continue
 			}
 
-			it, err := ti.Get(ifd.IfdPath, tag.TagId)
+			it, err := ti.Get(ifd.IfdPath, tag.TagId())
 
 			tagName := ""
 			if err == nil {
@@ -178,9 +179,9 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				continue
 			}
 
-			value, err := ifd.TagValue(tag)
+			value, err := tag.Value()
 			if err != nil {
-				if log.Is(err, exif.ErrUnhandledUnknownTypedTag) == true {
+				if log.Is(err, exifcommon.ErrUnhandledUndefinedTypedTag) == true {
 					value = "!UNPARSEABLE"
 				} else {
 					log.Panic(err)

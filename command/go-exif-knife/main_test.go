@@ -49,8 +49,8 @@ func TestMain_Read_Text(t *testing.T) {
 	expected :=
 		` IFD: Ifd<ID=(3) IFD-PATH=[IFD] INDEX=(1) COUNT=(4) OFF=(0x039e) CHILDREN=(0) PARENT=(0x0000) NEXT-IFD=(0x0000)>
  - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x0103) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[Compression] VALUE=[[6]]
- - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[XResolution] VALUE=[[{72 1}]]
- - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011b) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[YResolution] VALUE=[[{72 1}]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[XResolution] VALUE=[[72/1]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011b) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[YResolution] VALUE=[[72/1]]
  - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x0128) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ResolutionUnit] VALUE=[[2]]
 `
 
@@ -79,8 +79,8 @@ func TestMain_Read_SpecificIfd(t *testing.T) {
 	expected :=
 		` IFD: Ifd<ID=(3) IFD-PATH=[IFD] INDEX=(1) COUNT=(4) OFF=(0x039e) CHILDREN=(0) PARENT=(0x0000) NEXT-IFD=(0x0000)>
  - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x0103) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[Compression] VALUE=[[6]]
- - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[XResolution] VALUE=[[{72 1}]]
- - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011b) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[YResolution] VALUE=[[{72 1}]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011a) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[XResolution] VALUE=[[72/1]]
+ - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x011b) TAG-TYPE=[RATIONAL] UNIT-COUNT=(1)> NAME=[YResolution] VALUE=[[72/1]]
  - TAG: IfdTagEntry<TAG-IFD-PATH=[IFD] TAG-ID=(0x0128) TAG-TYPE=[SHORT] UNIT-COUNT=(1)> NAME=[ResolutionUnit] VALUE=[[2]]
 `
 

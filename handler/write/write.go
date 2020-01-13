@@ -5,7 +5,8 @@ import (
 
 	"encoding/binary"
 
-	"github.com/dsoprea/go-exif"
+	"github.com/dsoprea/go-exif/v2"
+	"github.com/dsoprea/go-exif/v2/common"
 	"github.com/dsoprea/go-logging"
 
 	"github.com/dsoprea/go-exif-knife"
@@ -29,15 +30,14 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 	if mc.RootIfd != nil {
 		// There's EXIF data.
 
-		itevr := exif.NewIfdTagEntryValueResolver(mc.RawExif, mc.RootIfd.ByteOrder)
-		rootIb = exif.NewIfdBuilderFromExistingChain(mc.RootIfd, itevr)
+		rootIb = exif.NewIfdBuilderFromExistingChain(mc.RootIfd)
 	} else {
 		// There's no EXIF data. Add it.
 
 		im := exif.NewIfdMappingWithStandard()
 		ti := exif.NewTagIndex()
 
-		rootIb = exif.NewIfdBuilder(im, ti, exif.IfdPathStandard, binary.BigEndian)
+		rootIb = exif.NewIfdBuilder(im, ti, exifcommon.IfdPathStandard, binary.BigEndian)
 	}
 
 	ti := exif.NewTagIndex()
@@ -55,20 +55,15 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 		log.PanicIf(err)
 
 		// Ensure we don't have to deal with undefined-type tags at this point in time.
-		if it.Type == exif.TypeUndefined {
+		if it.Type == exifcommon.TypeUndefined {
 			// TODO(dustin): !! Circle back to this.
 			log.Panicf("undefined-type tags are not currently supported for writing")
 		}
 
-		tt := exif.NewTagType(it.Type, mc.RootIfd.ByteOrder)
-
-		value, err := tt.FromString(valueString)
-		log.PanicIf(err)
-
 		childIb, err := exif.GetOrCreateIbFromRootIb(rootIb, ifdPath)
 		log.PanicIf(err)
 
-		err = childIb.SetStandardWithName(tagName, value)
+		err = childIb.SetStandardWithName(tagName, valueString)
 		log.PanicIf(err)
 	}
 

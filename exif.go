@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/dsoprea/go-exif"
+	"github.com/dsoprea/go-exif/v2"
 	"github.com/dsoprea/go-jpeg-image-structure"
 	"github.com/dsoprea/go-logging"
 	"github.com/dsoprea/go-png-image-structure"
