@@ -8,10 +8,17 @@ github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200322045438-46a4ecb0c0fa h1
 github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200322045438-46a4ecb0c0fa/go.mod h1:J/Nq2z38/2hLpCvcXMVPYI28WN7+sgYpzZ3+jtcj+6U=
 github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200322051316-735e765a68ee h1:gAENNTSy5qzvIDDp07yC2mLf4EmVNjdsvmRMHVw3ur8=
 github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200322051316-735e765a68ee/go.mod h1:J/Nq2z38/2hLpCvcXMVPYI28WN7+sgYpzZ3+jtcj+6U=
+github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200322061814-b09a16a9d2b5 h1:9Stq/kcTCYHlyEVvv8ZlfnQ1/S5CyyScvxr0o4uFue4=
+github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200322061814-b09a16a9d2b5/go.mod h1:XfMoLVA1X3KJbh0ZLfYb2wij4nt4/Xg+pHDresDwENI=
 github.com/dsoprea/go-logging v0.0.0-20190624164917-c4f10aab7696 h1:VGFnZAcLwPpt1sHlAxml+pGLZz9A2s+K/s1YNhPC91Y=
 github.com/dsoprea/go-logging v0.0.0-20190624164917-c4f10aab7696/go.mod h1:Nm/x2ZUNRW6Fe5C3LxdY1PyZY5wmDv/s5dkPJ/VB3iA=
 github.com/dsoprea/go-png-image-structure v0.0.0-20200322042450-b1b64b6b17f4 h1:X6eGEgpxuEe3CXvmBHEPP6jXiTpF1+qTM7AKDnYd7lM=
 github.com/dsoprea/go-png-image-structure v0.0.0-20200322042450-b1b64b6b17f4/go.mod h1:E2uyTIhMXw4weEZrqrz1vFPtXVXrmikgCFRkcDv4nSg=
+github.com/dsoprea/go-png-image-structure v0.0.0-20200322062257-e5baf4dcbe12 h1:EAAWmuyfJLfKlP8fVnO7dzLFcpjn576TZhOpC1mR/Ko=
+github.com/dsoprea/go-png-image-structure v0.0.0-20200322062257-e5baf4dcbe12/go.mod h1:/dO0DMoQNT79oPKtMy2pMoP+OBfPfMsTsAvOmsH6gF0=
+github.com/dsoprea/go-utility v0.0.0-20190915061447-de63c3d65525 h1:dhHj8NGpkUuTDCgCcJpqMnTqpSuEzIR9StL17tq3uHI=
+github.com/dsoprea/go-utility v0.0.0-20200322055224-4dc0f716e7d0 h1:zFSboMDWXX2UX7/k/mCHBjZhHlaFMx0HmtUE37HABsA=
+github.com/dsoprea/go-utility v0.0.0-20200322055224-4dc0f716e7d0/go.mod h1:xv8CVgDmI/Shx/X+EUXyXELVnH5lSRUYRija52OHq7E=
 github.com/go-errors/errors v1.0.1 h1:LUHzmkK3GUKUrL/1gfBUxAHzcev3apQlezX/+O7ma6w=
 github.com/go-errors/errors v1.0.1/go.mod h1:f4zRHt4oKfwPJE5k8C9vpYG+aDHdBFUsgrm6/TyX73Q=
 github.com/golang/geo v0.0.0-20190916061304-5b978397cfec h1:lJwO/92dFXWeXOZdoGXgptLmNLwynMSHUmU6besqtiw=

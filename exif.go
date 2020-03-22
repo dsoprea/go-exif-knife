@@ -3,7 +3,6 @@ package exifknife
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/dsoprea/go-jpeg-image-structure"
 	"github.com/dsoprea/go-logging"
 	"github.com/dsoprea/go-png-image-structure"
+	"github.com/dsoprea/go-utility/image"
 )
 
 const (
@@ -25,33 +25,6 @@ const (
 var (
 	ErrNoExif = errors.New("file does not have EXIF")
 )
-
-// ExifContext is something returned by a MediaParser that knows how to extract
-// the actual EXIF structure.
-type ExifContext interface {
-	// Exif returns the EXIF's root IFD.
-	Exif() (rootIfd *exif.Ifd, data []byte, err error)
-}
-
-// MediaParser prescribes a specific structure for the parser types that are
-// imported from other projects. We don't use it directly, but we use this to
-// impose structure.
-type MediaParser interface {
-	// Parse parses a stream using an `io.Reader`. `ec` should *actually* be a
-	// `ExifContext`.
-	Parse(r io.Reader, size int) (ec interface{}, err error)
-
-	// ParseFile parses a stream using a file. `ec` should *actually* be a
-	// `ExifContext`.
-	ParseFile(filepath string) (ec interface{}, err error)
-
-	// ParseBytes parses a stream direct from bytes. `ec` should *actually* be
-	// a `ExifContext`.
-	ParseBytes(data []byte) (ec interface{}, err error)
-
-	// Parses the data to determine if it's a compatible format.
-	LooksLikeFormat(data []byte) bool
-}
 
 // MediaContext describes the context/data exteacted from the stream.
 type MediaContext struct {
@@ -65,7 +38,7 @@ type MediaContext struct {
 	RawExif []byte
 
 	// Media is type-specific internal data context.
-	Media ExifContext
+	Media riimage.MediaContext
 }
 
 func (mc MediaContext) String() string {
@@ -94,10 +67,10 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		log.PanicIf(err)
 	}
 
-	var jmp MediaParser
+	var jmp riimage.MediaParser
 	jmp = jpegstructure.NewJpegMediaParser()
 
-	var pmp MediaParser
+	var pmp riimage.MediaParser
 	pmp = pngstructure.NewPngMediaParser()
 
 	mt := ""
@@ -134,7 +107,7 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		intfc, err := jmp.ParseBytes(data)
 		log.PanicIf(err)
 
-		ec := intfc.(ExifContext)
+		ec := intfc.(riimage.MediaContext)
 		mc.Media = ec
 
 		rootIfd, rawExif, err := ec.Exif()
@@ -159,7 +132,7 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		intfc, err := pmp.ParseBytes(data)
 		log.PanicIf(err)
 
-		ec := intfc.(ExifContext)
+		ec := intfc.(riimage.MediaContext)
 		mc.Media = ec
 
 		rootIfd, rawExif, err := ec.Exif()
