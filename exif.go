@@ -3,6 +3,7 @@ package exifknife
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -25,11 +26,46 @@ var (
 	ErrNoExif = errors.New("file does not have EXIF")
 )
 
+// ExifContext is something returned by a MediaParser that knows how to extract
+// the actual EXIF structure.
+type ExifContext interface {
+	// Exif returns the EXIF's root IFD.
+	Exif() (rootIfd *exif.Ifd, data []byte, err error)
+}
+
+// MediaParser prescribes a specific structure for the parser types that are
+// imported from other projects. We don't use it directly, but we use this to
+// impose structure.
+type MediaParser interface {
+	// Parse parses a stream using an `io.Reader`. `ec` should *actually* be a
+	// `ExifContext`.
+	Parse(r io.Reader, size int) (ec interface{}, err error)
+
+	// ParseFile parses a stream using a file. `ec` should *actually* be a
+	// `ExifContext`.
+	ParseFile(filepath string) (ec interface{}, err error)
+
+	// ParseBytes parses a stream direct from bytes. `ec` should *actually* be
+	// a `ExifContext`.
+	ParseBytes(data []byte) (ec interface{}, err error)
+
+	// Parses the data to determine if it's a compatible format.
+	LooksLikeFormat(data []byte) bool
+}
+
+// MediaContext describes the context/data exteacted from the stream.
 type MediaContext struct {
+	// MediaType is the name of the detected media type.
 	MediaType string
-	RootIfd   *exif.Ifd
-	RawExif   []byte
-	Media     interface{}
+
+	// RootIfd is the root exif IFD.
+	RootIfd *exif.Ifd
+
+	// RawExif is the raw data bytes.
+	RawExif []byte
+
+	// Media is type-specific internal data context.
+	Media ExifContext
 }
 
 func (mc MediaContext) String() string {
@@ -58,8 +94,11 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		log.PanicIf(err)
 	}
 
-	jmp := jpegstructure.NewJpegMediaParser()
-	pmp := pngstructure.NewPngMediaParser()
+	var jmp MediaParser
+	jmp = jpegstructure.NewJpegMediaParser()
+
+	var pmp MediaParser
+	pmp = pngstructure.NewPngMediaParser()
 
 	mt := ""
 
@@ -92,12 +131,13 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			Media:     nil,
 		}
 
-		sl, err := jmp.ParseBytes(data)
+		intfc, err := jmp.ParseBytes(data)
 		log.PanicIf(err)
 
-		mc.Media = sl
+		ec := intfc.(ExifContext)
+		mc.Media = ec
 
-		rootIfd, rawExif, err := sl.Exif()
+		rootIfd, rawExif, err := ec.Exif()
 		if err != nil {
 			if log.Is(err, exif.ErrNoExif) == true {
 				return mc, nil
@@ -116,12 +156,13 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			Media:     nil,
 		}
 
-		cs, err := pmp.ParseBytes(data)
+		intfc, err := pmp.ParseBytes(data)
 		log.PanicIf(err)
 
-		mc.Media = cs
+		ec := intfc.(ExifContext)
+		mc.Media = ec
 
-		rootIfd, rawExif, err := cs.Exif()
+		rootIfd, rawExif, err := ec.Exif()
 		if err != nil {
 			if log.Is(err, pngstructure.ErrNoExif) == true {
 				return mc, nil

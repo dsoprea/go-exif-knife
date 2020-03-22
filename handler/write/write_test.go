@@ -40,8 +40,10 @@ func TestExifWrite_Write_Noop(t *testing.T) {
 
 	jmp := jpegstructure.NewJpegMediaParser()
 
-	sl, err := jmp.ParseFile(outputFilepath)
+	intfc, err := jmp.ParseFile(outputFilepath)
 	log.PanicIf(err)
+
+	sl := intfc.(*jpegstructure.SegmentList)
 
 	rootIfd, _, err := sl.Exif()
 	log.PanicIf(err)
@@ -75,8 +77,10 @@ func TestExifWrite_Write_Noop(t *testing.T) {
 
 	// Parse.
 
-	sl, err = jmp.ParseFile(outputFilepath)
+	intfc, err = jmp.ParseFile(outputFilepath)
 	log.PanicIf(err)
+
+	sl = intfc.(*jpegstructure.SegmentList)
 
 	rootIfd, _, err = sl.Exif()
 	log.PanicIf(err)
