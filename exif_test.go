@@ -16,8 +16,8 @@ func TestGetExif_Jpeg(t *testing.T) {
 	mc, err := GetExif(filepath)
 	log.PanicIf(err)
 
-	if mc.MediaType != "jpeg" {
-		t.Fatalf("media-type not 'jpeg'")
+	if mc.MediaType != JpegMediaType {
+		t.Fatalf("Media-type not correct for a JPEG.")
 	}
 
 	ti := exif.NewTagIndex()
@@ -32,7 +32,7 @@ func TestGetExif_Jpeg(t *testing.T) {
 
 	expected := "Canon EOS 5D Mark III"
 	if value.(string) != expected {
-		t.Fatalf("model not valid")
+		t.Fatalf("Model not valid.")
 	}
 }
 
@@ -42,8 +42,8 @@ func TestGetExif_Png(t *testing.T) {
 	mc, err := GetExif(filepath)
 	log.PanicIf(err)
 
-	if mc.MediaType != "png" {
-		t.Fatalf("media-type not 'png'")
+	if mc.MediaType != PngMediaType {
+		t.Fatalf("Media-type not correct for a PNG.")
 	}
 
 	ti := exif.NewTagIndex()
@@ -58,7 +58,33 @@ func TestGetExif_Png(t *testing.T) {
 
 	expected := []uint32{11}
 	if reflect.DeepEqual(value, expected) != true {
-		t.Fatalf("image-width not valid")
+		t.Fatalf("Image-width not valid.")
+	}
+}
+
+func TestGetExif_Heic(t *testing.T) {
+	filepath := path.Join(assetsPath, "image.heic")
+
+	mc, err := GetExif(filepath)
+	log.PanicIf(err)
+
+	if mc.MediaType != HeicMediaType {
+		t.Fatalf("Media-type not correct for an HEIC.")
+	}
+
+	ti := exif.NewTagIndex()
+
+	it, err := ti.GetWithName(exifcommon.IfdPathStandard, "XResolution")
+	log.PanicIf(err)
+
+	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
+
+	value, err := ite.Value()
+	log.PanicIf(err)
+
+	expected := []exifcommon.Rational{{Numerator: 72, Denominator: 1}}
+	if reflect.DeepEqual(value, expected) != true {
+		t.Fatalf("Image-width not valid: %v", value)
 	}
 }
 
@@ -78,7 +104,7 @@ func TestGetExif_Other(t *testing.T) {
 	log.PanicIf(err)
 
 	if mc.MediaType != "other" {
-		t.Fatalf("media-type not 'other'")
+		t.Fatalf("Media-type not 'other' as expected.")
 	}
 
 	ti := exif.NewTagIndex()
@@ -93,6 +119,6 @@ func TestGetExif_Other(t *testing.T) {
 
 	expected := "Jean Cornillon"
 	if value.(string) != expected {
-		t.Fatalf("artist not correct")
+		t.Fatalf("Artist not correct.")
 	}
 }

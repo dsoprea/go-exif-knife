@@ -11,7 +11,7 @@ This tool has been written on top of [go-exif](https://github.com/dsoprea/go-exi
 
 ## Image Support
 
-**JPEG, PNG, and TIFF (naturally, since EXIF takes the TIFF structure) are well supported.** A byte-by-byte search will be performed for all other types of file. Writes are only supported for JEPG and PNG.
+**JPEG, PNG, HEIC, and TIFF (naturally, since EXIF takes the TIFF structure) are well supported.** A byte-by-byte search will be performed for all other types of file. Writes are only supported for JEPG and PNG.
 
 
 ```
