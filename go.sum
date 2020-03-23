@@ -31,6 +31,8 @@ github.com/dsoprea/go-heic-exif-extractor v0.0.0-20200323020001-3c3ef8434236 h1:
 github.com/dsoprea/go-heic-exif-extractor v0.0.0-20200323020001-3c3ef8434236/go.mod h1:webR9iEFrxCMtCP/NZjf4L3gHeIx9pdQYt/d1hzNutk=
 github.com/dsoprea/go-heic-exif-extractor v0.0.0-20200323045529-cdc27df7ba0b h1:MryNoUReZN+WDKbvNgKZmkE7AoXt8wi0lzMrVemLgvk=
 github.com/dsoprea/go-heic-exif-extractor v0.0.0-20200323045529-cdc27df7ba0b/go.mod h1:webR9iEFrxCMtCP/NZjf4L3gHeIx9pdQYt/d1hzNutk=
+github.com/dsoprea/go-heic-exif-extractor v0.0.0-20200323053120-f0dd224ef9dd h1:aZINMut/KnbVL7HeSvO2CWqhor7po4UK9Z/SPoo6VWA=
+github.com/dsoprea/go-heic-exif-extractor v0.0.0-20200323053120-f0dd224ef9dd/go.mod h1:webR9iEFrxCMtCP/NZjf4L3gHeIx9pdQYt/d1hzNutk=
 github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200322161747-68b42ab8823c h1:E1WwnAJ0iHzzD0YXNgSHEEnjfR9Wx5yAElMA8XWU034=
 github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200322161747-68b42ab8823c/go.mod h1:5vwlfhyZI7u8AuvTl0G70sdqVdH41f7dscvBQ6mEbHs=
 github.com/dsoprea/go-logging v0.0.0-20190624164917-c4f10aab7696 h1:VGFnZAcLwPpt1sHlAxml+pGLZz9A2s+K/s1YNhPC91Y=
@@ -100,6 +102,7 @@ go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
 go.opencensus.io v0.22.3/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
+go4.org v0.0.0-20200312051459-7028f7b4a332 h1:9+riThCjMGCmY/y3HCK0PFVtkdbVVUHE91h57nUrCkA=
 go4.org v0.0.0-20200312051459-7028f7b4a332/go.mod h1:CIiUVy99QCPfoE13bO4EZaz5GZMZXMSBGhxRdsvzbkg=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
