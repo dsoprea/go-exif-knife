@@ -7,6 +7,7 @@ go 1.13
 // replace github.com/dsoprea/go-jpeg-image-structure => ../go-jpeg-image-structure
 // replace github.com/dsoprea/go-heic-exif-extractor => ../go-heic-exif-extractor
 // replace github.com/dsoprea/go-utility => ../go-utility
+// replace github.com/dsoprea/go-exif/v2 => ../go-exif/v2
 
 require (
 	github.com/dsoprea/go-exif/v2 v2.0.0-20200321225314-640175a69fe4
