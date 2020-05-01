@@ -19,6 +19,7 @@ type readParameters struct {
 	SpecificTags []string `short:"t" long:"tag" description:"Specific tag to print (can be provided zero or more times)"`
 	JustValues   bool     `short:"V" long:"just-values" description:"If specific tags are provided, just print the value for each"`
 	Json         bool     `short:"j" long:"json" description:"Print as JSON"`
+	IgnoreNoExif bool     `short:"a" long:"ignore-no-exif" description:"Do not print and do not fail if no EXIF data"`
 }
 
 type writeParameters struct {
@@ -75,7 +76,7 @@ func main() {
 
 		er := new(exifkniferead.ExifRead)
 
-		err := er.Read(options.Filepath, options.JustTry, options.SpecificIfd, options.SpecificTags, options.JustValues, options.Json)
+		err := er.Read(options.Filepath, options.JustTry, options.SpecificIfd, options.SpecificTags, options.JustValues, options.Json, options.IgnoreNoExif)
 		log.PanicIf(err)
 
 	case "write":

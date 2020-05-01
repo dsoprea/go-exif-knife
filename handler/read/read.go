@@ -3,6 +3,7 @@ package exifkniferead
 import (
 	"fmt"
 	"sort"
+	"errors"
 
 	"encoding/json"
 
@@ -13,10 +14,14 @@ import (
 	"github.com/dsoprea/go-exif-knife"
 )
 
+var (
+	ErrNoExif = errors.New("no EXIF data")
+)
+
 type ExifRead struct {
 }
 
-func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignation string, specificTags []string, justPrintValues bool, printAsJson bool) (err error) {
+func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignation string, specificTags []string, justPrintValues bool, printAsJson bool, ignoreNoExif bool) (err error) {
 	defer func() {
 		if state := recover(); state != nil {
 			err = log.Wrap(state.(error))
@@ -25,6 +30,14 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 
 	mc, err := exifknife.GetExif(imageFilepath)
 	log.PanicIf(err)
+
+	if mc.RootIfd == nil {
+		if ignoreNoExif == true {
+			return nil
+		}
+
+		return ErrNoExif
+	}
 
 	if justTry {
 		fmt.Printf("%s\n", mc.MediaType)
