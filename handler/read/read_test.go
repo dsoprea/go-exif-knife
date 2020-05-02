@@ -17,8 +17,9 @@ func TestExifRead_Read(t *testing.T) {
 	specificTags := []string{}
 	justPrintValues := false
 	printAsJson := false
+	ignoreNoExif := false
 
-	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson)
+	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson, ignoreNoExif)
 	log.PanicIf(err)
 }
 
@@ -32,8 +33,9 @@ func TestExifRead_Read_JustTry(t *testing.T) {
 	specificTags := []string{}
 	justPrintValues := false
 	printAsJson := false
+	ignoreNoExif := false
 
-	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson)
+	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson, ignoreNoExif)
 	log.PanicIf(err)
 }
 
@@ -47,8 +49,9 @@ func TestExifRead_Read_SpecificIfd(t *testing.T) {
 	specificTags := []string{}
 	justPrintValues := false
 	printAsJson := false
+	ignoreNoExif := false
 
-	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson)
+	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson, ignoreNoExif)
 	log.PanicIf(err)
 }
 
@@ -62,8 +65,9 @@ func TestExifRead_Read_SpecificTags(t *testing.T) {
 	specificTags := []string{"ResolutionUnit"}
 	justPrintValues := false
 	printAsJson := false
+	ignoreNoExif := false
 
-	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson)
+	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson, ignoreNoExif)
 	log.PanicIf(err)
 }
 
@@ -77,8 +81,9 @@ func TestExifRead_Read_SpecificTags_InvalidIsOkay(t *testing.T) {
 	specificTags := []string{"xyz"}
 	justPrintValues := false
 	printAsJson := false
+	ignoreNoExif := false
 
-	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson)
+	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson, ignoreNoExif)
 	log.PanicIf(err)
 }
 
@@ -92,8 +97,9 @@ func TestExifRead_Read_SpecificIfdAndSpecificTags(t *testing.T) {
 	specificTags := []string{"ResolutionUnit"}
 	justPrintValues := false
 	printAsJson := false
+	ignoreNoExif := false
 
-	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson)
+	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson, ignoreNoExif)
 	log.PanicIf(err)
 }
 
@@ -107,8 +113,9 @@ func TestExifRead_Read_Json(t *testing.T) {
 	specificTags := []string{}
 	justPrintValues := false
 	printAsJson := true
+	ignoreNoExif := false
 
-	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson)
+	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson, ignoreNoExif)
 	log.PanicIf(err)
 }
 
@@ -122,7 +129,8 @@ func TestExifRead_Read_JustPrint(t *testing.T) {
 	specificTags := []string{}
 	justPrintValues := true
 	printAsJson := false
+	ignoreNoExif := false
 
-	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson)
+	err := er.Read(imageFilepath, justTry, specificIfdDesignation, specificTags, justPrintValues, printAsJson, ignoreNoExif)
 	log.PanicIf(err)
 }
