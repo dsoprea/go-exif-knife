@@ -1,9 +1,10 @@
 package exifkniferead
 
 import (
-	"fmt"
-	"sort"
 	"errors"
+	"fmt"
+	"os"
+	"sort"
 
 	"encoding/json"
 
@@ -27,6 +28,13 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 			err = log.Wrap(state.(error))
 		}
 	}()
+
+	s, err := os.Stat(imageFilepath)
+	log.PanicIf(err)
+
+	if s.Size() == 0 {
+		log.Panicf("zero-length file")
+	}
 
 	mc, err := exifknife.GetExif(imageFilepath)
 	log.PanicIf(err)
