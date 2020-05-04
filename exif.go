@@ -113,11 +113,23 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			Media:     nil,
 		}
 
-		mc.Media, err = jmp.ParseBytes(data)
-		log.PanicIf(err)
+		var parseErr error
+
+		mc.Media, parseErr = jmp.ParseBytes(data)
+		if mc.Media == nil && parseErr != nil {
+			log.Panic(err)
+		}
 
 		rootIfd, rawExif, err := mc.Media.Exif()
 		if err != nil {
+			// If we had an error before but still got the list of encountered
+			// segments back, we would've still checked to see if we had the
+			// EXIF data before failing. If we couldn't find or parse it, just
+			// panic with the original error.
+			if parseErr != nil {
+				log.Panic(parseErr)
+			}
+
 			if log.Is(err, exif.ErrNoExif) == true {
 				return mc, nil
 			} else {
