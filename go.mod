@@ -12,7 +12,7 @@ go 1.13
 require (
 	github.com/dsoprea/go-exif/v2 v2.0.0-20200503062216-3e77768f3580
 	github.com/dsoprea/go-heic-exif-extractor v0.0.0-20200502204916-7d356eae214f
-	github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200504053932-8b20d8e50072
+	github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200504080818-288e72e0addf
 	github.com/dsoprea/go-logging v0.0.0-20200502201358-170ff607885f
 	github.com/dsoprea/go-png-image-structure v0.0.0-20200502204547-95308446cacc
 	github.com/dsoprea/go-utility v0.0.0-20200424085841-d6691864fa10
