@@ -43,7 +43,6 @@ type thumbnailParameters struct {
 }
 
 type parameters struct {
-	Verbose   bool                `short:"v" long:"verbose" description:"Display logging"`
 	Thumbnail thumbnailParameters `command:"thumbnail" alias:"t" description:"Read/write thumbnail"`
 	Read      readParameters      `command:"read" alias:"r" description:"Read/dump EXIF data"`
 	Write     writeParameters     `command:"write" alias:"w" description:"Add/update EXIF data"`
