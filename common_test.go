@@ -36,8 +36,8 @@ func CommandGetExif(filepath string) (exifInfo map[string]map[string]interface{}
 	return exifInfo
 }
 
-func RunCommand(command_parts ...string) (output []byte, err error) {
-	cmd := exec.Command(command_parts[0], command_parts[1:]...)
+func RunCommand(commandParts ...string) (output []byte, err error) {
+	cmd := exec.Command(commandParts[0], commandParts[1:]...)
 
 	b := new(bytes.Buffer)
 	cmd.Stdout = b
