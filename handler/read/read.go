@@ -16,6 +16,10 @@ import (
 )
 
 var (
+	readLogger = log.NewLogger("exifkniferead.read")
+)
+
+var (
 	ErrNoExif = errors.New("no EXIF data")
 )
 
@@ -46,6 +50,8 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 
 		return ErrNoExif
 	}
+
+	readLogger.Debugf(nil, "EXIF blob is (%d) bytes.", len(mc.RawExif))
 
 	if justTry {
 		fmt.Printf("%s\n", mc.MediaType)

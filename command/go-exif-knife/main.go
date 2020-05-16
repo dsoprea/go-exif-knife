@@ -43,6 +43,8 @@ type thumbnailParameters struct {
 }
 
 type parameters struct {
+	DoPrintVerbose bool `short:"v" long:"verbose" description:"Print logging"`
+
 	Thumbnail thumbnailParameters `command:"thumbnail" alias:"t" description:"Read/write thumbnail"`
 	Read      readParameters      `command:"read" alias:"r" description:"Read/dump EXIF data"`
 	Write     writeParameters     `command:"write" alias:"w" description:"Add/update EXIF data"`
@@ -67,6 +69,16 @@ func main() {
 	_, err := p.Parse()
 	if err != nil {
 		os.Exit(1)
+	}
+
+	if arguments.DoPrintVerbose == true {
+		cla := log.NewConsoleLogAdapter()
+		log.AddAdapter("console", cla)
+
+		scp := log.NewStaticConfigurationProvider()
+		scp.SetLevelName(log.LevelNameDebug)
+
+		log.LoadConfiguration(scp)
 	}
 
 	switch p.Active.Name {

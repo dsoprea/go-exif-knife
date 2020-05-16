@@ -18,6 +18,7 @@ var (
 	appFilepath = ""
 )
 
+// CommandGetExif calls the reader subcommand.
 func CommandGetExif(filepath string) (exifInfo map[string]map[string]interface{}) {
 	parts := []string{
 		"go", "run", appFilepath, "read",
@@ -36,6 +37,7 @@ func CommandGetExif(filepath string) (exifInfo map[string]map[string]interface{}
 	return exifInfo
 }
 
+// RunCommand calls an arbitrary command and captures the output.
 func RunCommand(commandParts ...string) (output []byte, err error) {
 	cmd := exec.Command(commandParts[0], commandParts[1:]...)
 
