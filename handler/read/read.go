@@ -85,6 +85,12 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 		if len(included) > 0 {
 			ti := exif.NewTagIndex()
 			cb := func(ifd *exif.Ifd, tag *exif.IfdTagEntry) error {
+				// This will just add noise to the output (byte-tags are fully
+				// dumped).
+				if tag.IsThumbnailOffset() == true || tag.IsThumbnailSize() == true {
+					return nil
+				}
+
 				it, err := ti.Get(ifd.IfdPath, tag.TagId())
 
 				tagName := ""
