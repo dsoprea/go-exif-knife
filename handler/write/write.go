@@ -55,7 +55,7 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 		log.PanicIf(err)
 
 		// Ensure we don't have to deal with undefined-type tags at this point in time.
-		if it.Type == exifcommon.TypeUndefined {
+		if it.DoesSupportType(exifcommon.TypeUndefined) == true {
 			// TODO(dustin): !! Circle back to this.
 			log.Panicf("undefined-type tags are not currently supported for writing")
 		}
