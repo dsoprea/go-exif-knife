@@ -98,67 +98,19 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 					tagName = it.Name
 				}
 
-				// Unknown tag.
-				if tagName == "" {
-					return nil
-				}
-
 				i := included.Search(tagName)
 				if i >= len(included) || included[i] != tagName {
 					return nil
 				}
 
-				value, err := tag.Value()
-				if err != nil {
-					if log.Is(err, exifcommon.ErrUnhandledUndefinedTypedTag) == true {
-						value = "!UNPARSEABLE"
-					} else {
-						log.Panic(err)
-					}
-				}
+				phrase, err := tag.Format()
+				log.PanicIf(err)
 
 				if justPrintValues == false {
 					fmt.Printf("%s: ", tagName)
 				}
 
-				switch value.(type) {
-				case []uint8:
-					list_ := value.([]uint8)
-					for _, item := range list_ {
-						fmt.Printf("%d ", item)
-					}
-				case []uint16:
-					list_ := value.([]uint16)
-					for _, item := range list_ {
-						fmt.Printf("%d ", item)
-					}
-				case []uint32:
-					list_ := value.([]uint32)
-					for _, item := range list_ {
-						fmt.Printf("%d ", item)
-					}
-				case []int32:
-					list_ := value.([]int32)
-					for _, item := range list_ {
-						fmt.Printf("%d ", item)
-					}
-				case []exifcommon.Rational:
-					list_ := value.([]exifcommon.Rational)
-					for _, item := range list_ {
-						fmt.Printf("%d/%d ", item.Numerator, item.Denominator)
-					}
-				case []exifcommon.SignedRational:
-					list_ := value.([]exifcommon.SignedRational)
-					for _, item := range list_ {
-						fmt.Printf("%d/%d ", item.Numerator, item.Denominator)
-					}
-				case string:
-					fmt.Printf("%s", value.(string))
-				default:
-					fmt.Printf("%v", value)
-				}
-
-				fmt.Printf("\n")
+				fmt.Printf("%s\n", phrase)
 
 				return nil
 			}
