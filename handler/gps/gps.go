@@ -25,7 +25,7 @@ func (eg *ExifGps) ReadGps(imageFilepath string, includeS2Location, printAsJson 
 	mc, err := exifknife.GetExif(imageFilepath)
 	log.PanicIf(err)
 
-	gpsIfd, err := mc.RootIfd.ChildWithIfdPath(exifcommon.IfdPathStandardGps)
+	gpsIfd, err := mc.RootIfd.ChildWithIfdPath(exifcommon.IfdGpsInfoStandardIfdIdentity)
 	log.PanicIf(err)
 
 	gi, err := gpsIfd.GpsInfo()

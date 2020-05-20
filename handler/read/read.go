@@ -91,7 +91,7 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 					return nil
 				}
 
-				it, err := ti.Get(ifd.IfdPath, tag.TagId())
+				it, err := ti.Get(ifd.IfdIdentity().UnindexedString(), tag.TagId())
 
 				tagName := ""
 				if err == nil {
@@ -103,7 +103,7 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 					return nil
 				}
 
-				phrase, err := tag.Format()
+				phrase, err := tag.FormatFirst()
 				log.PanicIf(err)
 
 				if justPrintValues == false {
@@ -138,7 +138,17 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 	for ifd != nil {
 		for _, tag := range ifd.Entries {
 			if tag.ChildIfdPath() != "" {
-				childIfd, err := ifd.ChildWithIfdPath(tag.ChildIfdPath())
+				currentIfdTag := ifd.IfdIdentity().IfdTag()
+
+				childIfdTag :=
+					exifcommon.NewIfdTag(
+						&currentIfdTag,
+						tag.TagId(),
+						tag.ChildIfdName())
+
+				iiChild := ifd.IfdIdentity().NewChild(childIfdTag, 0)
+
+				childIfd, err := ifd.ChildWithIfdPath(iiChild)
 				log.PanicIf(err)
 
 				err = er.exportIfd(childIfd, included, distilled)
@@ -147,7 +157,7 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				continue
 			}
 
-			it, err := ti.Get(ifd.IfdPath, tag.TagId())
+			it, err := ti.Get(ifd.IfdIdentity().UnindexedString(), tag.TagId())
 
 			tagName := ""
 			if err == nil {
@@ -173,7 +183,7 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				}
 			}
 
-			ifdMap, found := distilled[ifd.FqIfdPath]
+			ifdMap, found := distilled[ifd.IfdIdentity().String()]
 
 			if found == true {
 				ifdMap[tagName] = value
@@ -183,7 +193,7 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				}
 			}
 
-			distilled[ifd.FqIfdPath] = ifdMap
+			distilled[ifd.IfdIdentity().String()] = ifdMap
 		}
 
 		ifdIndex++

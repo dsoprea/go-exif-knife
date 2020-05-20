@@ -37,7 +37,7 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 		im := exif.NewIfdMappingWithStandard()
 		ti := exif.NewTagIndex()
 
-		rootIb = exif.NewIfdBuilder(im, ti, exifcommon.IfdPathStandard, binary.BigEndian)
+		rootIb = exif.NewIfdBuilder(im, ti, exifcommon.IfdStandardIfdIdentity, binary.BigEndian)
 	}
 
 	ti := exif.NewTagIndex()
