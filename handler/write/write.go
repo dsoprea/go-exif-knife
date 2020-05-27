@@ -25,6 +25,9 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 	mc, err := exifknife.GetExif(inputFilepath)
 	log.PanicIf(err)
 
+	im := exif.NewIfdMappingWithStandard()
+	ti := exif.NewTagIndex()
+
 	var rootIb *exif.IfdBuilder
 
 	if mc.RootIfd != nil {
@@ -34,13 +37,8 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 	} else {
 		// There's no EXIF data. Add it.
 
-		im := exif.NewIfdMappingWithStandard()
-		ti := exif.NewTagIndex()
-
 		rootIb = exif.NewIfdBuilder(im, ti, exifcommon.IfdStandardIfdIdentity, binary.BigEndian)
 	}
-
-	ti := exif.NewTagIndex()
 
 	for _, fieldSpec := range setTagPhrases {
 		// Split something like "<IFD path>,tag name,value".
@@ -50,8 +48,11 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 		tagName := parts[1]
 		valueString := parts[2]
 
+		ii, err := exifcommon.NewIfdIdentityFromString(im, ifdPath)
+		log.PanicIf(err)
+
 		// Validates the tag.
-		it, err := ti.GetWithName(ifdPath, tagName)
+		it, err := ti.GetWithName(ii, tagName)
 		log.PanicIf(err)
 
 		// Ensure we don't have to deal with undefined-type tags at this point in time.

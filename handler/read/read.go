@@ -91,7 +91,7 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 					return nil
 				}
 
-				it, err := ti.Get(ifd.IfdIdentity().UnindexedString(), tag.TagId())
+				it, err := ti.Get(ifd.IfdIdentity(), tag.TagId())
 
 				tagName := ""
 				if err == nil {
@@ -157,7 +157,7 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				continue
 			}
 
-			it, err := ti.Get(ifd.IfdIdentity().UnindexedString(), tag.TagId())
+			it, err := ti.Get(ifd.IfdIdentity(), tag.TagId())
 
 			tagName := ""
 			if err == nil {

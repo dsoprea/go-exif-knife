@@ -22,7 +22,7 @@ func TestGetExif_Jpeg(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity.UnindexedString(), "Model")
+	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "Model")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
@@ -48,7 +48,7 @@ func TestGetExif_Png(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity.UnindexedString(), "ImageWidth")
+	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "ImageWidth")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
@@ -74,7 +74,7 @@ func TestGetExif_Heic(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity.UnindexedString(), "XResolution")
+	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "XResolution")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
@@ -109,7 +109,7 @@ func TestGetExif_Other(t *testing.T) {
 
 	ti := exif.NewTagIndex()
 
-	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity.UnindexedString(), "Artist")
+	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "Artist")
 	log.PanicIf(err)
 
 	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
