@@ -11,6 +11,7 @@ import (
 )
 
 func TestGetExif_Jpeg(t *testing.T) {
+	assetsPath := GetTestAssetsPath()
 	filepath := path.Join(assetsPath, "image.jpg")
 
 	mc, err := GetExif(filepath)
@@ -37,6 +38,7 @@ func TestGetExif_Jpeg(t *testing.T) {
 }
 
 func TestGetExif_Png(t *testing.T) {
+	assetsPath := GetTestAssetsPath()
 	filepath := path.Join(assetsPath, "image.png")
 
 	mc, err := GetExif(filepath)
@@ -63,6 +65,7 @@ func TestGetExif_Png(t *testing.T) {
 }
 
 func TestGetExif_Heic(t *testing.T) {
+	assetsPath := GetTestAssetsPath()
 	filepath := path.Join(assetsPath, "image.heic")
 
 	mc, err := GetExif(filepath)
@@ -98,6 +101,7 @@ func TestGetExif_Other(t *testing.T) {
 		}
 	}()
 
+	assetsPath := GetTestAssetsPath()
 	filepath := path.Join(assetsPath, "image.tiff")
 
 	mc, err := GetExif(filepath)
