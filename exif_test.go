@@ -1,9 +1,13 @@
 package exifknife
 
 import (
+	"io"
+	"os"
 	"path"
 	"reflect"
 	"testing"
+
+	"io/ioutil"
 
 	"github.com/dsoprea/go-exif/v2"
 	"github.com/dsoprea/go-exif/v2/common"
@@ -91,7 +95,7 @@ func TestGetExif_Heic(t *testing.T) {
 	}
 }
 
-func TestGetExif_Other(t *testing.T) {
+func TestGetExif_Tiff(t *testing.T) {
 	defer func() {
 		if state := recover(); state != nil {
 			err := log.Wrap(state.(error))
@@ -105,6 +109,71 @@ func TestGetExif_Other(t *testing.T) {
 	filepath := path.Join(assetsPath, "image.tiff")
 
 	mc, err := GetExif(filepath)
+	log.PanicIf(err)
+
+	if mc.MediaType != TiffMediaType {
+		t.Fatalf("Media-type not correct for an TIFF.")
+	}
+
+	ti := exif.NewTagIndex()
+
+	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "Artist")
+	log.PanicIf(err)
+
+	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
+
+	value, err := ite.Value()
+	log.PanicIf(err)
+
+	expected := "Jean Cornillon"
+	if value.(string) != expected {
+		t.Fatalf("Artist not correct.")
+	}
+}
+
+func TestGetExif_Other(t *testing.T) {
+	defer func() {
+		if state := recover(); state != nil {
+			err := log.Wrap(state.(error))
+			log.PrintError(err)
+
+			t.Fatalf("Test failure.")
+		}
+	}()
+
+	f, err := ioutil.TempFile("", "")
+	log.PanicIf(err)
+
+	copyFilepath := f.Name()
+
+	defer func() {
+		f.Close()
+
+		os.Remove(copyFilepath)
+	}()
+
+	assetsPath := GetTestAssetsPath()
+	originalFilepath := path.Join(assetsPath, "image.tiff")
+
+	g, err := os.Open(originalFilepath)
+	log.PanicIf(err)
+
+	// Write some padding at the top of the file so that it's no longer a
+	// recognized file-type.
+
+	blank := make([]byte, 4)
+
+	_, err = f.Write(blank)
+	log.PanicIf(err)
+
+	// Now, copy the image verbatim.
+
+	_, err = io.Copy(f, g)
+	log.PanicIf(err)
+
+	// Try the reason.
+
+	mc, err := GetExif(copyFilepath)
 	log.PanicIf(err)
 
 	if mc.MediaType != "other" {

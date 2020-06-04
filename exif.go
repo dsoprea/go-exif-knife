@@ -216,6 +216,8 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		mc.RootIfd = rootIfd
 		mc.RawExif = rawExif
 	} else if mt == OtherMediaType {
+		// Brute force.
+
 		rawExif, err := exif.SearchAndExtractExif(data)
 		if err != nil {
 			if log.Is(err, exif.ErrNoExif) == true {
