@@ -9,11 +9,13 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/dsoprea/go-exif/v2"
 	"github.com/dsoprea/go-heic-exif-extractor"
 	"github.com/dsoprea/go-jpeg-image-structure"
-	"github.com/dsoprea/go-logging"
 	"github.com/dsoprea/go-png-image-structure"
+	"github.com/dsoprea/go-tiff-image-structure"
+
+	"github.com/dsoprea/go-exif/v2"
+	"github.com/dsoprea/go-logging"
 	"github.com/dsoprea/go-utility/image"
 )
 
@@ -21,6 +23,7 @@ const (
 	JpegMediaType  = "jpeg"
 	PngMediaType   = "png"
 	HeicMediaType  = "heic"
+	TiffMediaType  = "tiff"
 	OtherMediaType = "other"
 )
 
@@ -78,6 +81,9 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 	var hemp riimage.MediaParser
 	hemp = heicexif.NewHeicExifMediaParser()
 
+	var tmp riimage.MediaParser
+	tmp = tiffstructure.NewTiffMediaParser()
+
 	mt := ""
 
 	if imageFilepath != "-" {
@@ -90,6 +96,8 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			mt = PngMediaType
 		} else if extension == ".heic" {
 			mt = HeicMediaType
+		} else if extension == ".tiff" {
+			mt = TiffMediaType
 		}
 	}
 
@@ -100,6 +108,8 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			mt = PngMediaType
 		} else if hemp.LooksLikeFormat(data) == true {
 			mt = HeicMediaType
+		} else if tmp.LooksLikeFormat(data) == true {
+			mt = TiffMediaType
 		} else {
 			mt = OtherMediaType
 		}
@@ -180,6 +190,28 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 				log.Panic(err)
 			}
 		}
+
+		mc.RootIfd = rootIfd
+		mc.RawExif = rawExif
+	} else if mt == TiffMediaType {
+		mc = &MediaContext{
+			MediaType: TiffMediaType,
+			RootIfd:   nil,
+			RawExif:   nil,
+			Media:     nil,
+		}
+
+		mc.Media, err = tmp.ParseBytes(data)
+		if err != nil {
+			if log.Is(err, exif.ErrNoExif) == true {
+				return mc, nil
+			} else {
+				log.Panic(err)
+			}
+		}
+
+		rootIfd, rawExif, err := mc.Media.Exif()
+		log.PanicIf(err)
 
 		mc.RootIfd = rootIfd
 		mc.RawExif = rawExif

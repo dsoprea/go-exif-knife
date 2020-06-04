@@ -15,7 +15,7 @@ require (
 	github.com/dsoprea/go-jpeg-image-structure v0.0.0-20200604195911-545332714161
 	github.com/dsoprea/go-logging v0.0.0-20200517223158-a10564966e9d
 	github.com/dsoprea/go-png-image-structure v0.0.0-20200604195800-fcc57a72b8e7
-	github.com/dsoprea/go-tiff-image-structure v0.0.0-20200604200057-42b63f69efa6 // indirect
+	github.com/dsoprea/go-tiff-image-structure v0.0.0-20200604200057-42b63f69efa6
 	github.com/dsoprea/go-utility v0.0.0-20200512094054-1abbbc781176
 	github.com/jessevdk/go-flags v1.4.0
 )
