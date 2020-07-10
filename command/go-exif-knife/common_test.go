@@ -10,7 +10,7 @@ import (
 
 	"os/exec"
 
-	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging/v2"
 )
 
 var (

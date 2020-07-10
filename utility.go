@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging/v2"
 )
 
 func DumpBytes(data []byte) {

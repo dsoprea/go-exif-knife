@@ -4,7 +4,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging/v2"
 )
 
 func TestExifGps_ReadGps_WithS2(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging/v2"
 )
 
 func TestExifRead_Read(t *testing.T) {

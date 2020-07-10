@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 
 	"github.com/dsoprea/go-jpeg-image-structure"
-	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging/v2"
 )
 
 func TestExifWrite_Write_Noop(t *testing.T) {

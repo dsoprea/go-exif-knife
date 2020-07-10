@@ -10,7 +10,7 @@ import (
 
 	"github.com/dsoprea/go-exif/v2"
 	"github.com/dsoprea/go-exif/v2/common"
-	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging/v2"
 
 	"github.com/dsoprea/go-exif-knife"
 )

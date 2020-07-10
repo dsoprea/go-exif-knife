@@ -8,7 +8,7 @@ import (
 
 	"io/ioutil"
 
-	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging/v2"
 )
 
 func TestExifThumbnail_ExtractThumbnail(t *testing.T) {

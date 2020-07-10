@@ -6,7 +6,7 @@ import (
 
 	"io/ioutil"
 
-	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging/v2"
 
 	"github.com/dsoprea/go-exif-knife"
 )

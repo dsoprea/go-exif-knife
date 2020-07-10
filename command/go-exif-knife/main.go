@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/dsoprea/go-logging"
+	"github.com/dsoprea/go-logging/v2"
 	"github.com/jessevdk/go-flags"
 
 	"github.com/dsoprea/go-exif-knife/handler/gps"
@@ -76,7 +76,7 @@ func main() {
 		log.AddAdapter("console", cla)
 
 		scp := log.NewStaticConfigurationProvider()
-		scp.SetLevelName(log.LevelNameDebug)
+		scp.SetLevel(log.LevelDebug)
 
 		log.LoadConfiguration(scp)
 	}
