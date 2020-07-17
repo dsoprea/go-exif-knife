@@ -5,8 +5,8 @@ import (
 
 	"encoding/binary"
 
-	"github.com/dsoprea/go-exif/v2"
-	"github.com/dsoprea/go-exif/v2/common"
+	"github.com/dsoprea/go-exif/v3"
+	"github.com/dsoprea/go-exif/v3/common"
 	"github.com/dsoprea/go-logging/v2"
 
 	"github.com/dsoprea/go-exif-knife"
@@ -25,7 +25,9 @@ func (ew *ExifWrite) Write(inputFilepath string, setTagPhrases []string, outputF
 	mc, err := exifknife.GetExif(inputFilepath)
 	log.PanicIf(err)
 
-	im := exif.NewIfdMappingWithStandard()
+	im, err := exifcommon.NewIfdMappingWithStandard()
+	log.PanicIf(err)
+
 	ti := exif.NewTagIndex()
 
 	var rootIb *exif.IfdBuilder

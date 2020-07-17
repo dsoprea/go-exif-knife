@@ -7,7 +7,7 @@ import (
 
 	"io/ioutil"
 
-	"github.com/dsoprea/go-jpeg-image-structure"
+	"github.com/dsoprea/go-jpeg-image-structure/v2"
 	"github.com/dsoprea/go-logging/v2"
 )
 

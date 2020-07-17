@@ -8,8 +8,8 @@ import (
 
 	"encoding/json"
 
-	"github.com/dsoprea/go-exif/v2"
-	"github.com/dsoprea/go-exif/v2/common"
+	"github.com/dsoprea/go-exif/v3"
+	"github.com/dsoprea/go-exif/v3/common"
 	"github.com/dsoprea/go-logging/v2"
 
 	"github.com/dsoprea/go-exif-knife"
@@ -63,9 +63,6 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 	if specificIfdDesignation != "" {
 		ifd, err = exif.FindIfdFromRootIfd(ifd, specificIfdDesignation)
 		log.PanicIf(err)
-
-		// If we're displaying a particular IFD, don't display any siblings.
-		ifd.NextIfd = nil
 	}
 
 	included := sort.StringSlice(specificTags)
@@ -74,7 +71,7 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 	if printAsJson == true {
 		distilled := make(map[string]map[string]interface{})
 
-		err := er.exportIfd(ifd, included, distilled)
+		err := er.exportIfd(ifd, included, distilled, specificIfdDesignation)
 		log.PanicIf(err)
 
 		data, err := json.MarshalIndent(distilled, "", "    ")
@@ -125,7 +122,7 @@ func (er *ExifRead) Read(imageFilepath string, justTry bool, specificIfdDesignat
 	return nil
 }
 
-func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distilled map[string]map[string]interface{}) (err error) {
+func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distilled map[string]map[string]interface{}, specificIfdDesignation string) (err error) {
 	defer func() {
 		if state := recover(); state != nil {
 			err = log.Wrap(state.(error))
@@ -136,7 +133,7 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 
 	ifdIndex := 0
 	for ifd != nil {
-		for _, tag := range ifd.Entries {
+		for _, tag := range ifd.Entries() {
 			if tag.ChildIfdPath() != "" {
 				currentIfdTag := ifd.IfdIdentity().IfdTag()
 
@@ -151,7 +148,7 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 				childIfd, err := ifd.ChildWithIfdPath(iiChild)
 				log.PanicIf(err)
 
-				err = er.exportIfd(childIfd, included, distilled)
+				err = er.exportIfd(childIfd, included, distilled, specificIfdDesignation)
 				log.PanicIf(err)
 
 				continue
@@ -197,7 +194,12 @@ func (er *ExifRead) exportIfd(ifd *exif.Ifd, included sort.StringSlice, distille
 		}
 
 		ifdIndex++
-		ifd = ifd.NextIfd
+		ifd = ifd.NextIfd()
+
+		if specificIfdDesignation != "" {
+			// If we're displaying a particular IFD, don't display any siblings.
+			break
+		}
 	}
 
 	return nil

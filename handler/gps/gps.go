@@ -6,7 +6,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/dsoprea/go-exif/v2/common"
+	"github.com/dsoprea/go-exif/v3/common"
 	"github.com/dsoprea/go-logging/v2"
 
 	"github.com/dsoprea/go-exif-knife"

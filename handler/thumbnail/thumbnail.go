@@ -48,7 +48,7 @@ func (et *ExifThumbnail) ExtractThumbnail(imageFilepath, outputFilepath string) 
 		os.Exit(1)
 	}
 
-	thumbnailData, err := ifd.NextIfd.Thumbnail()
+	thumbnailData, err := ifd.NextIfd().Thumbnail()
 	log.PanicIf(err)
 
 	err = et.writeBytes(outputFilepath, thumbnailData)

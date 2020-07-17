@@ -9,8 +9,8 @@ import (
 
 	"io/ioutil"
 
-	"github.com/dsoprea/go-exif/v2"
-	"github.com/dsoprea/go-exif/v2/common"
+	"github.com/dsoprea/go-exif/v3"
+	"github.com/dsoprea/go-exif/v3/common"
 	"github.com/dsoprea/go-logging/v2"
 )
 
@@ -30,7 +30,7 @@ func TestGetExif_Jpeg(t *testing.T) {
 	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "Model")
 	log.PanicIf(err)
 
-	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
+	ite := mc.RootIfd.EntriesByTagId()[it.Id][0]
 
 	value, err := ite.Value()
 	log.PanicIf(err)
@@ -57,7 +57,7 @@ func TestGetExif_Png(t *testing.T) {
 	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "ImageWidth")
 	log.PanicIf(err)
 
-	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
+	ite := mc.RootIfd.EntriesByTagId()[it.Id][0]
 
 	value, err := ite.Value()
 	log.PanicIf(err)
@@ -84,7 +84,7 @@ func TestGetExif_Heic(t *testing.T) {
 	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "XResolution")
 	log.PanicIf(err)
 
-	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
+	ite := mc.RootIfd.EntriesByTagId()[it.Id][0]
 
 	value, err := ite.Value()
 	log.PanicIf(err)
@@ -120,7 +120,7 @@ func TestGetExif_Tiff(t *testing.T) {
 	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "Artist")
 	log.PanicIf(err)
 
-	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
+	ite := mc.RootIfd.EntriesByTagId()[it.Id][0]
 
 	value, err := ite.Value()
 	log.PanicIf(err)
@@ -185,7 +185,7 @@ func TestGetExif_Other(t *testing.T) {
 	it, err := ti.GetWithName(exifcommon.IfdStandardIfdIdentity, "Artist")
 	log.PanicIf(err)
 
-	ite := mc.RootIfd.EntriesByTagId[it.Id][0]
+	ite := mc.RootIfd.EntriesByTagId()[it.Id][0]
 
 	value, err := ite.Value()
 	log.PanicIf(err)

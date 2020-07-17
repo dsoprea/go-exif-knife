@@ -9,13 +9,14 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/dsoprea/go-exif/v2"
-	"github.com/dsoprea/go-heic-exif-extractor"
-	"github.com/dsoprea/go-jpeg-image-structure"
+	"github.com/dsoprea/go-exif/v3"
+	"github.com/dsoprea/go-exif/v3/common"
+	"github.com/dsoprea/go-heic-exif-extractor/v2"
+	"github.com/dsoprea/go-jpeg-image-structure/v2"
 	"github.com/dsoprea/go-logging/v2"
-	"github.com/dsoprea/go-png-image-structure"
-	"github.com/dsoprea/go-tiff-image-structure"
-	"github.com/dsoprea/go-utility/image"
+	"github.com/dsoprea/go-png-image-structure/v2"
+	"github.com/dsoprea/go-tiff-image-structure/v2"
+	"github.com/dsoprea/go-utility/v2/image"
 )
 
 const (
@@ -226,7 +227,9 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			}
 		}
 
-		im := exif.NewIfdMappingWithStandard()
+		im, err := exifcommon.NewIfdMappingWithStandard()
+		log.PanicIf(err)
+
 		ti := exif.NewTagIndex()
 
 		_, index, err := exif.Collect(im, ti, rawExif)
