@@ -9,11 +9,12 @@ env:
   - GO111MODULE=on
 install:
   - go get -t ./...
-  - go get github.com/mattn/goveralls
-  - go get github.com/mitchellh/gox
 script:
-  - goveralls -v -service=travis-ci
+  - go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+after_success:
+  - curl -s https://codecov.io/bash | bash
 before_deploy:
+  - go get github.com/mitchellh/gox
   - gox -output "build/{{.Dir}}.{{.OS}}-{{.Arch}}" ./...
 deploy:
   skip_cleanup: true

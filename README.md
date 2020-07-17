@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/dsoprea/go-exif-knife.svg?branch=master)](https://travis-ci.org/dsoprea/go-exif-knife)
-[![Coverage Status](https://coveralls.io/repos/github/dsoprea/go-exif-knife/badge.svg?branch=master)](https://coveralls.io/github/dsoprea/go-exif-knife?branch=master)
+[![codecov](https://codecov.io/gh/dsoprea/go-exif-knife/branch/master/graph/badge.svg)](https://codecov.io/gh/dsoprea/go-exif-knife)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dsoprea/go-exif-knife)](https://goreportcard.com/report/github.com/dsoprea/go-exif-knife)
 [![GoDoc](https://godoc.org/github.com/dsoprea/go-exif-knife?status.svg)](https://godoc.org/github.com/dsoprea/go-exif-knife)
+
 
 ## Overview
 
