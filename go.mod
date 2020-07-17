@@ -1,6 +1,6 @@
 module github.com/dsoprea/go-exif-knife
 
-go 1.13
+go 1.12
 
 // Development only
 // replace github.com/dsoprea/go-utility/v2 => ../go-utility/v2
