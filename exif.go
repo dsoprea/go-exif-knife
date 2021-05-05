@@ -17,6 +17,7 @@ import (
 	"github.com/dsoprea/go-png-image-structure/v2"
 	"github.com/dsoprea/go-tiff-image-structure/v2"
 	"github.com/dsoprea/go-utility/v2/image"
+	"github.com/dsoprea/go-webp-image-structure"
 )
 
 const (
@@ -24,11 +25,16 @@ const (
 	PngMediaType   = "png"
 	HeicMediaType  = "heic"
 	TiffMediaType  = "tiff"
+	WebpMediaType  = "webp"
 	OtherMediaType = "other"
 )
 
 var (
 	ErrNoExif = errors.New("file does not have EXIF")
+)
+
+var (
+	exifLogger = log.NewLogger("exifknife.exif")
 )
 
 // MediaContext describes the context/data exteacted from the stream.
@@ -84,6 +90,9 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 	var tmp riimage.MediaParser
 	tmp = tiffstructure.NewTiffMediaParser()
 
+	var wmp riimage.MediaParser
+	wmp = webp.NewWebpMediaParser()
+
 	mt := ""
 
 	if imageFilepath != "-" {
@@ -98,6 +107,12 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			mt = HeicMediaType
 		} else if extension == ".tiff" {
 			mt = TiffMediaType
+		} else if extension == ".webp" {
+			mt = WebpMediaType
+		}
+
+		if mt != "" {
+			exifLogger.Debugf(nil, "Detected type based on extension: [%s]", mt)
 		}
 	}
 
@@ -110,8 +125,14 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			mt = HeicMediaType
 		} else if tmp.LooksLikeFormat(data) == true {
 			mt = TiffMediaType
+		} else if wmp.LooksLikeFormat(data) == true {
+			mt = WebpMediaType
 		} else {
 			mt = OtherMediaType
+		}
+
+		if mt != "" {
+			exifLogger.Debugf(nil, "Detected type based on content: [%s]", mt)
 		}
 	}
 
@@ -202,6 +223,28 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		}
 
 		mc.Media, err = tmp.ParseBytes(data)
+		if err != nil {
+			if log.Is(err, exif.ErrNoExif) == true {
+				return mc, nil
+			} else {
+				log.Panic(err)
+			}
+		}
+
+		rootIfd, rawExif, err := mc.Media.Exif()
+		log.PanicIf(err)
+
+		mc.RootIfd = rootIfd
+		mc.RawExif = rawExif
+	} else if mt == WebpMediaType {
+		mc = &MediaContext{
+			MediaType: WebpMediaType,
+			RootIfd:   nil,
+			RawExif:   nil,
+			Media:     nil,
+		}
+
+		mc.Media, err = wmp.ParseBytes(data)
 		if err != nil {
 			if log.Is(err, exif.ErrNoExif) == true {
 				return mc, nil
