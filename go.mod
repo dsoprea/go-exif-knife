@@ -12,7 +12,7 @@ go 1.12
 // replace github.com/dsoprea/go-logging/v2 => ../go-logging/v2
 
 require (
-	github.com/dsoprea/go-exif/v3 v3.0.0-20200717071058-9393e7afd446
+	github.com/dsoprea/go-exif/v3 v3.0.0-20210428042052-dca55bf8ca15
 	github.com/dsoprea/go-heic-exif-extractor/v2 v2.0.0-20200717080213-0bb0b9fb3f3a
 	github.com/dsoprea/go-iptc v0.0.0-20200610044640-bc9ca208b413 // indirect
 	github.com/dsoprea/go-jpeg-image-structure/v2 v2.0.0-20200717072931-d1ef2375db45
