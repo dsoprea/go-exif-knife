@@ -3,13 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"os"
-	"path"
 
 	"encoding/json"
 
 	"os/exec"
 
+	"github.com/dsoprea/go-exif-knife"
 	"github.com/dsoprea/go-logging/v2"
 )
 
@@ -71,11 +70,6 @@ func RunCommand(command_parts ...string) (output []byte, err error) {
 }
 
 func init() {
-	goPath := os.Getenv("GOPATH")
-	if goPath == "" {
-		log.Panicf("GOPATH is empty")
-	}
-
-	assetsPath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "assets")
-	appFilepath = path.Join(goPath, "src", "github.com", "dsoprea", "go-exif-knife", "command", "go-exif-knife", "main.go")
+	assetsPath = exifknife.GetTestAssetsPath()
+	appFilepath = exifknife.GetAppFilepath()
 }
