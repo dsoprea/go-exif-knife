@@ -57,6 +57,7 @@ github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd/go.mod h1:7I+3P
 github.com/dsoprea/go-photoshop-info-format v0.0.0-20200609050348-3db9b63b202c/go.mod h1:pqKB+ijp27cEcrHxhXVgUUMlSDRuGJJp1E+20Lj5H0E=
 github.com/dsoprea/go-photoshop-info-format v0.0.0-20200610045659-121dd752914d h1:dg6UMHa50VI01WuPWXPbNJpO8QSyvIF5T5n2IZiqX3A=
 github.com/dsoprea/go-photoshop-info-format v0.0.0-20200610045659-121dd752914d/go.mod h1:pqKB+ijp27cEcrHxhXVgUUMlSDRuGJJp1E+20Lj5H0E=
+github.com/dsoprea/go-png-image-structure v0.0.0-20210512210324-29b889a6093d h1:8+qI8ant/vZkNSsbwSjIR6XJfWcDVTg/qx/3pRUUZNA=
 github.com/dsoprea/go-png-image-structure v0.0.0-20210512210324-29b889a6093d/go.mod h1:yTR3tKgyk20phAFg6IE9ulMA5NjEDD2wyx+okRFLVtw=
 github.com/dsoprea/go-png-image-structure/v2 v2.0.0-20200717073543-83c6344e4591 h1:Iwzg25bNjZVmUJ2LS/iPpBj22FObzGuSX35dJlQ1xNU=
 github.com/dsoprea/go-png-image-structure/v2 v2.0.0-20200717073543-83c6344e4591/go.mod h1:hPHK2Ok9LLSPTWxFVFna0vHzKo38l+e51LKncBaVnnU=
