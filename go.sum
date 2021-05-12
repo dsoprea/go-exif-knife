@@ -24,6 +24,8 @@ github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMn
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dsoprea/go-exif v0.0.0-20200717071058-9393e7afd446 h1:FnNEJS55MknGmYrPXU0thP2HoT9inQ5NeLL0qcZo6so=
+github.com/dsoprea/go-exif-extra v0.0.0-20210512205300-ac5695cd20c4 h1:/J1b105JuxfKp7ahVDmXoVBBTUMe67egaZz8P8/B22o=
+github.com/dsoprea/go-exif-extra v0.0.0-20210512205300-ac5695cd20c4/go.mod h1:O8nf2StZeak57kzUh7y52PEwdczE/QgDjIxM53muwMM=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200321225314-640175a69fe4/go.mod h1:Lm2lMM2zx8p4a34ZemkaUV95AnMl4ZvLbCUbwOvLC2E=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200604193436-ca8584a0e1c4 h1:Mg7pY7kxDQD2Bkvr1N+XW4BESSIQ7tTTR7Vv+Gi2CsM=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200604193436-ca8584a0e1c4/go.mod h1:9EXlPeHfblFFnwu5UOqmP2eoZfJyAZ2Ri/Vki33ajO0=

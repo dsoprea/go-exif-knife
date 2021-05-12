@@ -9,6 +9,7 @@ import (
 
 	"io/ioutil"
 
+	"github.com/dsoprea/go-exif-extra/format"
 	"github.com/dsoprea/go-exif/v3"
 	"github.com/dsoprea/go-exif/v3/common"
 	"github.com/dsoprea/go-logging/v2"
@@ -21,7 +22,7 @@ func TestGetExif_Jpeg(t *testing.T) {
 	mc, err := GetExif(filepath)
 	log.PanicIf(err)
 
-	if mc.MediaType != JpegMediaType {
+	if mc.MediaType != imageformats.JpegMediaType {
 		t.Fatalf("Media-type not correct for a JPEG.")
 	}
 
@@ -48,7 +49,7 @@ func TestGetExif_Png(t *testing.T) {
 	mc, err := GetExif(filepath)
 	log.PanicIf(err)
 
-	if mc.MediaType != PngMediaType {
+	if mc.MediaType != imageformats.PngMediaType {
 		t.Fatalf("Media-type not correct for a PNG.")
 	}
 
@@ -75,8 +76,8 @@ func TestGetExif_Heic(t *testing.T) {
 	mc, err := GetExif(filepath)
 	log.PanicIf(err)
 
-	if mc.MediaType != HeicMediaType {
-		t.Fatalf("Media-type not correct for an HEIC.")
+	if mc.MediaType != imageformats.HeifMediaType {
+		t.Fatalf("Media-type not correct for an HEIC file.")
 	}
 
 	ti := exif.NewTagIndex()
@@ -111,7 +112,7 @@ func TestGetExif_Tiff(t *testing.T) {
 	mc, err := GetExif(filepath)
 	log.PanicIf(err)
 
-	if mc.MediaType != TiffMediaType {
+	if mc.MediaType != imageformats.TiffMediaType {
 		t.Fatalf("Media-type not correct for an TIFF.")
 	}
 

@@ -4,28 +4,21 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"io/ioutil"
 	"path/filepath"
 
+	"github.com/dsoprea/go-jpeg-image-structure/v2"
+
 	"github.com/dsoprea/go-exif/v3"
 	"github.com/dsoprea/go-exif/v3/common"
-	"github.com/dsoprea/go-heic-exif-extractor/v2"
-	"github.com/dsoprea/go-jpeg-image-structure/v2"
 	"github.com/dsoprea/go-logging/v2"
-	"github.com/dsoprea/go-png-image-structure/v2"
-	"github.com/dsoprea/go-tiff-image-structure/v2"
 	"github.com/dsoprea/go-utility/v2/image"
-	"github.com/dsoprea/go-webp-image-structure"
+
+	"github.com/dsoprea/go-exif-extra/format"
 )
 
 const (
-	JpegMediaType  = "jpeg"
-	PngMediaType   = "png"
-	HeicMediaType  = "heic"
-	TiffMediaType  = "tiff"
-	WebpMediaType  = "webp"
 	OtherMediaType = "other"
 )
 
@@ -78,151 +71,38 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		log.PanicIf(err)
 	}
 
-	var jmp riimage.MediaParser
-	jmp = jpegstructure.NewJpegMediaParser()
-
-	var pmp riimage.MediaParser
-	pmp = pngstructure.NewPngMediaParser()
-
-	var hemp riimage.MediaParser
-	hemp = heicexif.NewHeicExifMediaParser()
-
-	var tmp riimage.MediaParser
-	tmp = tiffstructure.NewTiffMediaParser()
-
-	var wmp riimage.MediaParser
-	wmp = webp.NewWebpMediaParser()
-
 	mt := ""
+	var mp riimage.MediaParser
 
 	if imageFilepath != "-" {
 		extension := filepath.Ext(imageFilepath)
-		extension = strings.ToLower(extension)
 
-		if extension == ".jpg" || extension == ".jpeg" {
-			mt = JpegMediaType
-		} else if extension == ".png" {
-			mt = PngMediaType
-		} else if extension == ".heic" {
-			mt = HeicMediaType
-		} else if extension == ".tiff" {
-			mt = TiffMediaType
-		} else if extension == ".webp" {
-			mt = WebpMediaType
-		}
+		if extension != "" {
+			mt, mp = imageformats.GetFormatForExtension(extension)
 
-		if mt != "" {
-			exifLogger.Debugf(nil, "Detected type based on extension: [%s]", mt)
+			if mp != nil {
+				exifLogger.Debugf(nil, "Detected type based on extension: [%s]", mt)
+			}
 		}
 	}
 
-	if mt == "" {
-		if jmp.LooksLikeFormat(data) == true {
-			mt = JpegMediaType
-		} else if pmp.LooksLikeFormat(data) == true {
-			mt = PngMediaType
-		} else if hemp.LooksLikeFormat(data) == true {
-			mt = HeicMediaType
-		} else if tmp.LooksLikeFormat(data) == true {
-			mt = TiffMediaType
-		} else if wmp.LooksLikeFormat(data) == true {
-			mt = WebpMediaType
-		} else {
-			mt = OtherMediaType
-		}
+	if mp == nil {
+		mt, mp = imageformats.GetFormatForBytes(data)
 
-		if mt != "" {
+		if mp != nil {
 			exifLogger.Debugf(nil, "Detected type based on content: [%s]", mt)
 		}
 	}
 
-	if mt == JpegMediaType {
+	if mp != nil {
 		mc = &MediaContext{
-			MediaType: JpegMediaType,
+			MediaType: mt,
 			RootIfd:   nil,
 			RawExif:   nil,
 			Media:     nil,
 		}
 
-		var parseErr error
-
-		mc.Media, parseErr = jmp.ParseBytes(data)
-		if mc.Media == nil && parseErr != nil {
-			log.Panic(err)
-		}
-
-		rootIfd, rawExif, err := mc.Media.Exif()
-		if err != nil {
-			// If we had an error before but still got the list of encountered
-			// segments back, we would've still checked to see if we had the
-			// EXIF data before failing. If we couldn't find or parse it, just
-			// panic with the original error.
-			if parseErr != nil {
-				log.Panic(parseErr)
-			}
-
-			if log.Is(err, exif.ErrNoExif) == true {
-				return mc, nil
-			} else {
-				log.Panic(err)
-			}
-		}
-
-		mc.RootIfd = rootIfd
-		mc.RawExif = rawExif
-	} else if mt == PngMediaType {
-		mc = &MediaContext{
-			MediaType: PngMediaType,
-			RootIfd:   nil,
-			RawExif:   nil,
-			Media:     nil,
-		}
-
-		mc.Media, err = pmp.ParseBytes(data)
-		log.PanicIf(err)
-
-		rootIfd, rawExif, err := mc.Media.Exif()
-		if err != nil {
-			if log.Is(err, pngstructure.ErrNoExif) == true {
-				return mc, nil
-			} else {
-				log.Panic(err)
-			}
-		}
-
-		mc.RootIfd = rootIfd
-		mc.RawExif = rawExif
-	} else if mt == HeicMediaType {
-		mc = &MediaContext{
-			MediaType: HeicMediaType,
-			RootIfd:   nil,
-			RawExif:   nil,
-			Media:     nil,
-		}
-
-		mc.Media, err = hemp.ParseBytes(data)
-		log.PanicIf(err)
-
-		rootIfd, rawExif, err := mc.Media.Exif()
-		if err != nil {
-			if log.Is(err, pngstructure.ErrNoExif) == true {
-				return mc, nil
-			} else {
-				log.Panic(err)
-			}
-		}
-
-		mc.RootIfd = rootIfd
-		mc.RawExif = rawExif
-	} else if mt == TiffMediaType {
-		mc = &MediaContext{
-			MediaType: TiffMediaType,
-			RootIfd:   nil,
-			RawExif:   nil,
-			Media:     nil,
-		}
-
-		mc.Media, err = tmp.ParseBytes(data)
+		mc.Media, err = mp.ParseBytes(data)
 		if err != nil {
 			if log.Is(err, exif.ErrNoExif) == true {
 				return mc, nil
@@ -232,19 +112,6 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		}
 
 		rootIfd, rawExif, err := mc.Media.Exif()
-		log.PanicIf(err)
-
-		mc.RootIfd = rootIfd
-		mc.RawExif = rawExif
-	} else if mt == WebpMediaType {
-		mc = &MediaContext{
-			MediaType: WebpMediaType,
-			RootIfd:   nil,
-			RawExif:   nil,
-			Media:     nil,
-		}
-
-		mc.Media, err = wmp.ParseBytes(data)
 		if err != nil {
 			if log.Is(err, exif.ErrNoExif) == true {
 				return mc, nil
@@ -253,12 +120,13 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			}
 		}
 
-		rootIfd, rawExif, err := mc.Media.Exif()
-		log.PanicIf(err)
-
 		mc.RootIfd = rootIfd
 		mc.RawExif = rawExif
-	} else if mt == OtherMediaType {
+	} else {
+		if mt != "" {
+			log.Panicf("Format identified as [%s] but unhandled.", mt)
+		}
+
 		// Brute force.
 
 		rawExif, err := exif.SearchAndExtractExif(data)
@@ -284,8 +152,6 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 			RawExif:   rawExif,
 			Media:     nil,
 		}
-	} else {
-		log.Panicf("media-type not handled for parsing; this shouldn't happen")
 	}
 
 	return mc, nil
@@ -302,9 +168,10 @@ func SetExif(mc *MediaContext, imageFilepath string, ib *exif.IfdBuilder) (err e
 		log.Panicf("media-type does not support writing")
 	}
 
+	// TODO(dustin): Add missing support for adding/updating PNG content.
 	// TODO(dustin): Add support for adding/updating EXIF content in HEIC files once we find something that mutates HEIC/HEIF data.
 
-	if mc.MediaType == JpegMediaType {
+	if mc.MediaType == imageformats.JpegMediaType {
 		sl := mc.Media.(*jpegstructure.SegmentList)
 
 		err := sl.SetExif(ib)
@@ -316,19 +183,6 @@ func SetExif(mc *MediaContext, imageFilepath string, ib *exif.IfdBuilder) (err e
 		defer f.Close()
 
 		err = sl.Write(f)
-		log.PanicIf(err)
-	} else if mc.MediaType == PngMediaType {
-		cs := mc.Media.(*pngstructure.ChunkSlice)
-
-		err := cs.SetExif(ib)
-		log.PanicIf(err)
-
-		f, err := os.Create(imageFilepath)
-		log.PanicIf(err)
-
-		defer f.Close()
-
-		err = cs.WriteTo(f)
 		log.PanicIf(err)
 	} else {
 		log.Panicf("media-type not handled for writing")
