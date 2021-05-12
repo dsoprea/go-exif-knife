@@ -11,7 +11,7 @@ go 1.12
 // replace github.com/dsoprea/go-exif-extra => ../go-exif-extra
 
 require (
-	github.com/dsoprea/go-exif-extra v0.0.0-20210512205300-ac5695cd20c4
+	github.com/dsoprea/go-exif-extra v0.0.0-20210512210440-c683d9263a55
 	github.com/dsoprea/go-exif/v3 v3.0.0-20210512043655-120bcdb2a55e
 	github.com/dsoprea/go-iptc v0.0.0-20200610044640-bc9ca208b413 // indirect
 	github.com/dsoprea/go-jpeg-image-structure/v2 v2.0.0-20210512043942-b434301c6836

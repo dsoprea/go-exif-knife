@@ -26,6 +26,8 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/dsoprea/go-exif v0.0.0-20200717071058-9393e7afd446 h1:FnNEJS55MknGmYrPXU0thP2HoT9inQ5NeLL0qcZo6so=
 github.com/dsoprea/go-exif-extra v0.0.0-20210512205300-ac5695cd20c4 h1:/J1b105JuxfKp7ahVDmXoVBBTUMe67egaZz8P8/B22o=
 github.com/dsoprea/go-exif-extra v0.0.0-20210512205300-ac5695cd20c4/go.mod h1:O8nf2StZeak57kzUh7y52PEwdczE/QgDjIxM53muwMM=
+github.com/dsoprea/go-exif-extra v0.0.0-20210512210440-c683d9263a55 h1:v1LEguXqeI6QbpGKwmrMc9oBHq9cgKkqm7YD3JzK+rI=
+github.com/dsoprea/go-exif-extra v0.0.0-20210512210440-c683d9263a55/go.mod h1:McE0dBPJgVRtws0wKXK43gTfFJ5QZv7LYr9uSYPbAzQ=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200321225314-640175a69fe4/go.mod h1:Lm2lMM2zx8p4a34ZemkaUV95AnMl4ZvLbCUbwOvLC2E=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200604193436-ca8584a0e1c4 h1:Mg7pY7kxDQD2Bkvr1N+XW4BESSIQ7tTTR7Vv+Gi2CsM=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200604193436-ca8584a0e1c4/go.mod h1:9EXlPeHfblFFnwu5UOqmP2eoZfJyAZ2Ri/Vki33ajO0=
@@ -55,6 +57,7 @@ github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd/go.mod h1:7I+3P
 github.com/dsoprea/go-photoshop-info-format v0.0.0-20200609050348-3db9b63b202c/go.mod h1:pqKB+ijp27cEcrHxhXVgUUMlSDRuGJJp1E+20Lj5H0E=
 github.com/dsoprea/go-photoshop-info-format v0.0.0-20200610045659-121dd752914d h1:dg6UMHa50VI01WuPWXPbNJpO8QSyvIF5T5n2IZiqX3A=
 github.com/dsoprea/go-photoshop-info-format v0.0.0-20200610045659-121dd752914d/go.mod h1:pqKB+ijp27cEcrHxhXVgUUMlSDRuGJJp1E+20Lj5H0E=
+github.com/dsoprea/go-png-image-structure v0.0.0-20210512210324-29b889a6093d/go.mod h1:yTR3tKgyk20phAFg6IE9ulMA5NjEDD2wyx+okRFLVtw=
 github.com/dsoprea/go-png-image-structure/v2 v2.0.0-20200717073543-83c6344e4591 h1:Iwzg25bNjZVmUJ2LS/iPpBj22FObzGuSX35dJlQ1xNU=
 github.com/dsoprea/go-png-image-structure/v2 v2.0.0-20200717073543-83c6344e4591/go.mod h1:hPHK2Ok9LLSPTWxFVFna0vHzKo38l+e51LKncBaVnnU=
 github.com/dsoprea/go-png-image-structure/v2 v2.0.0-20210512044023-23bdd883ee8e h1:7xT+Xgi019P9KVdcl+QUnSrgKCwIZWqkPNk5GygFTsw=
