@@ -1,7 +1,6 @@
 package exifknife
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -20,10 +19,6 @@ import (
 
 const (
 	OtherMediaType = "other"
-)
-
-var (
-	ErrNoExif = errors.New("file does not have EXIF")
 )
 
 var (
@@ -103,13 +98,7 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		}
 
 		mc.Media, err = mp.ParseBytes(data)
-		if err != nil {
-			if log.Is(err, exif.ErrNoExif) == true {
-				return mc, nil
-			} else {
-				log.Panic(err)
-			}
-		}
+		log.PanicIf(err)
 
 		rootIfd, rawExif, err := mc.Media.Exif()
 		if err != nil {
@@ -130,13 +119,7 @@ func GetExif(imageFilepath string) (mc *MediaContext, err error) {
 		// Brute force.
 
 		rawExif, err := exif.SearchAndExtractExif(data)
-		if err != nil {
-			if log.Is(err, exif.ErrNoExif) == true {
-				log.Panic(ErrNoExif)
-			} else {
-				log.Panic(err)
-			}
-		}
+		log.PanicIf(err)
 
 		im, err := exifcommon.NewIfdMappingWithStandard()
 		log.PanicIf(err)
